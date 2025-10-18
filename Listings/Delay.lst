@@ -1,0 +1,60 @@
+C51 COMPILER V9.54   DELAY                                                                 10/02/2025 21:02:31 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN .\Objects\Delay.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\..\src\Delay.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\inc) DEBUG OBJEC
+                    -TEXTEND PRINT(.\Listings\Delay.lst) OBJECT(.\Objects\Delay.obj)
+
+line level    source
+
+   1          /**
+   2           * @brief 基于空循环的毫秒级延时函数
+   3           * @param num 延时毫秒数（范围：0-65535）
+   4           * @note 1. 晶振频率要求：11.0592MHz
+   5           *       2. 采用嵌套循环结构实现延时
+   6           *       3. 最大延时约65秒（65535ms）
+   7           *       4. 延时期间CPU处于阻塞状态
+   8           * 
+   9           * @details 延时计算公式：
+  10           *          T = num * 114 * 机器周期
+  11           *          其中：机器周期 = 12/晶振频率 = 1.085μs
+  12           *          内层循环114次 ≈ 1ms (114×1.085μs ≈ 123.7μs ≈ 1ms)
+  13           * 
+  14           * @warning 1. 晶振偏差会直接导致延时误差
+  15           *          2. 不适合高精度时序控制场景
+  16           *          3. 延时期间无法响应外部中断
+  17           * 
+  18           * @example 延时500毫秒：
+  19           *          Delay(500);
+  20           */
+  21          void Delay(unsigned int num){
+  22   1              unsigned int i;
+  23   1          unsigned char j;
+  24   1      
+  25   1          for(i=0; i<num; i++){
+  26   2              for(j=0; j<114; j++){
+  27   3                  /* 11.0592MHz下的1ms延时基准循环
+  28   3                     114次循环 × 1.085μs/机器周期 ≈ 123.7μs ≈ 1ms */
+  29   3              }
+  30   2          }
+  31   1              
+  32   1          /* 延时精度说明：
+  33   1             - 理论误差：约0.7% (123.7μs vs 1000μs)
+  34   1             - 实际误差：取决于晶振精度和编译器优化
+  35   1             - 优化建议：可通过调整内层循环次数校准 */
+  36   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     24    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

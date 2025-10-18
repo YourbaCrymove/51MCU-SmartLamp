@@ -1,0 +1,65 @@
+C51 COMPILER V9.54   BUZZER                                                                10/02/2025 21:02:32 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE BUZZER
+OBJECT MODULE PLACED IN .\Objects\Buzzer.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\..\src\Buzzer.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\..\inc) DEBUG OBJE
+                    -CTEXTEND PRINT(.\Listings\Buzzer.lst) OBJECT(.\Objects\Buzzer.obj)
+
+line level    source
+
+   1          #include <regx52.h>
+   2          #include <intrins.h>
+   3          #include "Delay.h"
+   4          
+   5          sbit Buzzer = P2^5;
+   6          
+   7          
+   8          /**
+   9           * @brief 控制蜂鸣器以固定频率发声指定时间
+  10           * 
+  11           * 该函数驱动无源蜂鸣器产生500Hz方波信号，持续指定毫秒数后自动关闭。
+  12           * 工作原理：
+  13           *   - 通过不断翻转IO电平产生方波信号
+  14           *   - 每次电平翻转后延时1ms，形成2ms周期（500Hz频率）
+  15           *   - 执行完成后强制关闭蜂鸣器（低电平）
+  16           * 
+  17           * @param ms 发声持续时间（单位：毫秒）
+  18           * 
+  19           * @note 依赖外部精确的1ms延时函数 Delay()
+  20           * @note 频率计算：1/(2×0.001) = 500Hz
+  21           * 
+  22           * @par 示例：
+  23           * @code
+  24           * Buzzer_Time(1000); // 蜂鸣器响1秒
+  25           * @endcode
+  26           * 
+  27           * @see Delay()
+  28           */
+  29          void Buzzer_Time(unsigned int ms)
+  30          {
+  31   1          unsigned int i;
+  32   1          
+  33   1          // 循环ms次，每次产生1个完整周期（高+低电平）
+  34   1          for(i = 0; i < ms; i++) {
+  35   2              Buzzer = !Buzzer; // 翻转电平状态
+  36   2              Delay(1);         // 保持当前电平1ms
+  37   2          }
+  38   1          
+  39   1          // 确保结束后蜂鸣器关闭（低电平）
+  40   1          Buzzer = 0;
+  41   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     42    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
