@@ -312,7 +312,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\inc</IncludePath>
+              <IncludePath>.\Users;.\Driver</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -362,32 +362,42 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Source Group 1</GroupName>
+          <GroupName>Users</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\main.c</FilePath>
+              <FilePath>.\Users\main.c</FilePath>
             </File>
             <File>
-              <FileName>Delay.c</FileName>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Users\main.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>delay.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\Delay.c</FilePath>
+              <FilePath>.\Driver\delay.c</FilePath>
             </File>
             <File>
-              <FileName>Nixie.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\Nixie.c</FilePath>
+              <FileName>delay.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Driver\delay.h</FilePath>
             </File>
             <File>
-              <FileName>Buzzer.c</FileName>
+              <FileName>timer0.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\Buzzer.c</FilePath>
+              <FilePath>.\Driver\timer0.c</FilePath>
             </File>
             <File>
-              <FileName>IndividualKey.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\src\IndividualKey.c</FilePath>
+              <FileName>timer0.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Driver\timer0.h</FilePath>
             </File>
           </Files>
         </Group>
