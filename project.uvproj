@@ -399,6 +399,21 @@
               <FileType>5</FileType>
               <FilePath>.\Driver\timer0.h</FilePath>
             </File>
+            <File>
+              <FileName>keyInput.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Driver\keyInput.c</FilePath>
+            </File>
+            <File>
+              <FileName>keyInput.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Driver\keyInput.h</FilePath>
+            </File>
+            <File>
+              <FileName>keyConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Driver\keyConfig.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
