@@ -5,7 +5,8 @@
 
 // 引脚重定义
 sbit LED_MAIN = P2^0;	// 目前给主照明灯随便弄了引脚，到时候有引脚冲突了再改过
-
+sbit LED1 = P2^6;	// 自动模式指示灯
+sbit LED2 = P2^7;	// 手动模式指示灯
 
 // 照明灯状态枚举
 typedef enum {
@@ -15,5 +16,11 @@ typedef enum {
 	LAMP_HIGHT,		// 4档- 高
 	LAMP_HIGHTEST	// 5档- 最高
 } lightStatus;
+
+// 系统模式枚举
+typedef enum {
+	MANUAL,		// 手动模式
+	AUTO		// 自动模式
+} systemStatus;
 
 #endif
