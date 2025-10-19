@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        10/19/2025  15:37:14  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/19/2025  15:59:03  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -34,21 +34,21 @@ LINK MAP OF MODULE:  .\Objects\project (MAIN)
 
             * * * * * * *   C O D E   M E M O R Y   * * * * * * *
             CODE    0000H     0003H     ABSOLUTE     
-                    0003H     0008H                  *** GAP ***
+            CODE    0003H     0008H     UNIT         ?PR?MAIN?MAIN
             CODE    000BH     0003H     ABSOLUTE     
             CODE    000EH     008CH     UNIT         ?C_C51STARTUP
             CODE    009AH     0062H     UNIT         ?PR?KEYREAD?KEYINPUT
             CODE    00FCH     0055H     UNIT         ?C?LIB_CODE
-            CODE    0151H     003FH     UNIT         ?PR?STATEMACHINE?MAIN
-            CODE    0190H     003CH     UNIT         ?PR?TIMER0_ISR?MAIN
-            CODE    01CCH     0020H     UNIT         ?PR?_DELAYMS?DELAY
-            CODE    01ECH     001DH     UNIT         ?PR?_DELAYS?DELAY
-            CODE    0209H     001CH     UNIT         ?PR?_DELAYUS?DELAY
-            CODE    0225H     001BH     UNIT         ?PR?KEYSCAN?KEYINPUT
-            CODE    0240H     0016H     UNIT         ?PR?MAIN?MAIN
-            CODE    0256H     0013H     UNIT         ?PR?TIMER0INIT?TIMER0
-            CODE    0269H     0011H     UNIT         ?C_INITSEG
-            CODE    027AH     000BH     UNIT         ?PR?SYSTEMINIT?MAIN
+            CODE    0151H     0041H     UNIT         ?PR?STATEMACHINE?MAIN
+            CODE    0192H     003CH     UNIT         ?PR?TIMER0_ISR?MAIN
+            CODE    01CEH     0020H     UNIT         ?PR?_DELAYMS?DELAY
+            CODE    01EEH     001DH     UNIT         ?PR?_DELAYS?DELAY
+            CODE    020BH     001CH     UNIT         ?PR?_DELAYUS?DELAY
+            CODE    0227H     001BH     UNIT         ?PR?KEYSCAN?KEYINPUT
+            CODE    0242H     0018H     UNIT         ?PR?UPDATEINDICATORS?MAIN
+            CODE    025AH     0013H     UNIT         ?PR?TIMER0INIT?TIMER0
+            CODE    026DH     0011H     UNIT         ?C_INITSEG
+            CODE    027EH     000EH     UNIT         ?PR?SYSTEMINIT?MAIN
 
 
 
@@ -59,7 +59,7 @@ SEGMENT
   +--> CALLED SEGMENT
 ---------------------
 ?C_C51STARTUP
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:37:14  PAGE 2
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:59:03  PAGE 2
 
 
   +--> ?PR?MAIN?MAIN
@@ -71,9 +71,11 @@ SEGMENT
 
 ?PR?SYSTEMINIT?MAIN
   +--> ?PR?TIMER0INIT?TIMER0
+  +--> ?PR?UPDATEINDICATORS?MAIN
 
 ?PR?STATEMACHINE?MAIN
   +--> ?PR?KEYREAD?KEYINPUT
+  +--> ?PR?UPDATEINDICATORS?MAIN
 
 ?PR?KEYREAD?KEYINPUT
   +--> ?PR?KEYSCAN?KEYINPUT
@@ -91,99 +93,101 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   D:00A0H         PUBLIC        P2
   B:00A0H.6       PUBLIC        LED1
   B:00A0H.7       PUBLIC        LED2
+  C:0242H         PUBLIC        updateIndicators
   D:000DH         PUBLIC        lightState
-  C:0190H         PUBLIC        timer0_ISR
-  C:0240H         PUBLIC        main
+  C:0192H         PUBLIC        timer0_ISR
+  C:0003H         PUBLIC        main
   D:000EH         PUBLIC        systemState
   D:000FH         PUBLIC        keyNumber
-  C:027AH         PUBLIC        systemInit
+  C:027EH         PUBLIC        systemInit
   D:008CH         PUBLIC        TH0
   D:008AH         PUBLIC        TL0
   B:00A0H.0       PUBLIC        LED_MAIN
   C:0151H         PUBLIC        stateMachine
   D:0010H         PUBLIC        pwmCount
   -------         PROC          SYSTEMINIT
-  C:027AH         LINE#         15
-  C:027AH         LINE#         16
-  C:027DH         LINE#         18
-  C:0280H         LINE#         19
-  C:0282H         LINE#         21
-  C:0284H         LINE#         22
+  C:027EH         LINE#         15
+  C:027EH         LINE#         16
+  C:0281H         LINE#         17
+  C:0284H         LINE#         19
+  C:0287H         LINE#         20
+  C:0289H         LINE#         22
+  C:028BH         LINE#         23
   -------         ENDPROC       SYSTEMINIT
   -------         PROC          STATEMACHINE
-  C:0151H         LINE#         26
   C:0151H         LINE#         27
-  C:0156H         LINE#         28
-  C:0163H         LINE#         29
+  C:0151H         LINE#         28
+  C:0156H         LINE#         29
   C:0163H         LINE#         30
-  C:016FH         LINE#         31
-  C:0170H         LINE#         32
-  C:0170H         LINE#         33
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:37:14  PAGE 3
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:59:03  PAGE 3
 
 
-  C:0174H         LINE#         34
-  C:0178H         LINE#         35
-  C:0178H         LINE#         36
-  C:017AH         LINE#         37
+  C:0163H         LINE#         31
+  C:016FH         LINE#         33
+  C:0172H         LINE#         34
+  C:0172H         LINE#         35
+  C:0172H         LINE#         36
+  C:0176H         LINE#         37
   C:017AH         LINE#         38
-  C:017EH         LINE#         39
-  C:018FH         LINE#         40
-  C:018FH         LINE#         41
-  C:018FH         LINE#         42
-  C:018FH         LINE#         43
+  C:017AH         LINE#         39
+  C:017CH         LINE#         40
+  C:017CH         LINE#         41
+  C:0180H         LINE#         42
+  C:0191H         LINE#         43
+  C:0191H         LINE#         44
+  C:0191H         LINE#         45
+  C:0191H         LINE#         46
   -------         ENDPROC       STATEMACHINE
+  -------         PROC          UPDATEINDICATORS
+  C:0242H         LINE#         49
+  C:0242H         LINE#         50
+  C:024EH         LINE#         51
+  C:0259H         LINE#         52
+  -------         ENDPROC       UPDATEINDICATORS
   -------         PROC          MAIN
-  C:0240H         LINE#         46
-  C:0240H         LINE#         47
-  C:0243H         LINE#         49
-  C:0243H         LINE#         50
-  C:0246H         LINE#         52
-  C:024AH         LINE#         53
-  C:024CH         LINE#         54
-  C:024EH         LINE#         55
-  C:0250H         LINE#         56
-  C:0252H         LINE#         57
-  C:0254H         LINE#         58
-  C:0254H         LINE#         59
+  C:0003H         LINE#         55
+  C:0003H         LINE#         56
+  C:0006H         LINE#         58
+  C:0006H         LINE#         59
+  C:0009H         LINE#         61
   -------         ENDPROC       MAIN
   -------         PROC          TIMER0_ISR
-  C:0190H         LINE#         63
-  C:019DH         LINE#         65
-  C:01A0H         LINE#         66
-  C:01A3H         LINE#         68
-  C:01A5H         LINE#         69
-  C:01AEH         LINE#         70
-  C:01BBH         LINE#         71
-  C:01BDH         LINE#         72
-  C:01BFH         LINE#         73
-  C:01C1H         LINE#         74
+  C:0192H         LINE#         65
+  C:019FH         LINE#         67
+  C:01A2H         LINE#         68
+  C:01A5H         LINE#         70
+  C:01A7H         LINE#         71
+  C:01B0H         LINE#         72
+  C:01BDH         LINE#         73
+  C:01BFH         LINE#         74
   C:01C1H         LINE#         75
+  C:01C3H         LINE#         76
+  C:01C3H         LINE#         77
   -------         ENDPROC       TIMER0_ISR
   -------         ENDMOD        MAIN
 
   -------         MODULE        DELAY
   C:0000H         SYMBOL        _ICE_DUMMY_
-  C:01CCH         PUBLIC        _delayMs
-  C:0209H         PUBLIC        _delayUs
-  C:01ECH         PUBLIC        _delayS
+  C:01CEH         PUBLIC        _delayMs
+  C:020BH         PUBLIC        _delayUs
+  C:01EEH         PUBLIC        _delayS
   -------         PROC          _DELAYUS
   D:0006H         SYMBOL        us
   -------         DO            
   D:0004H         SYMBOL        i
   -------         ENDDO         
-  C:0209H         LINE#         10
-  C:0209H         LINE#         11
-  C:0209H         LINE#         14
-  C:0213H         LINE#         15
-  C:0213H         LINE#         17
-  C:0217H         LINE#         18
-  C:021BH         LINE#         19
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:37:14  PAGE 4
+  C:020BH         LINE#         10
+  C:020BH         LINE#         11
+  C:020BH         LINE#         14
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:59:03  PAGE 4
 
 
-  C:021DH         LINE#         20
-  C:0224H         LINE#         21
+  C:0215H         LINE#         15
+  C:0215H         LINE#         17
+  C:0219H         LINE#         18
+  C:021DH         LINE#         19
+  C:021FH         LINE#         20
+  C:0226H         LINE#         21
   -------         ENDPROC       _DELAYUS
   -------         PROC          _DELAYMS
   D:0006H         SYMBOL        ms
@@ -191,26 +195,26 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   D:0004H         SYMBOL        i
   D:0002H         SYMBOL        j
   -------         ENDDO         
-  C:01CCH         LINE#         27
-  C:01CCH         LINE#         28
-  C:01CCH         LINE#         30
-  C:01D6H         LINE#         31
-  C:01D6H         LINE#         33
-  C:01E4H         LINE#         34
-  C:01EBH         LINE#         35
+  C:01CEH         LINE#         27
+  C:01CEH         LINE#         28
+  C:01CEH         LINE#         30
+  C:01D8H         LINE#         31
+  C:01D8H         LINE#         33
+  C:01E6H         LINE#         34
+  C:01EDH         LINE#         35
   -------         ENDPROC       _DELAYMS
   -------         PROC          _DELAYS
   D:0014H         SYMBOL        s
   -------         DO            
   D:0082H         SYMBOL        i
   -------         ENDDO         
-  C:01ECH         LINE#         41
-  C:01F0H         LINE#         42
-  C:01F0H         LINE#         45
-  C:01FEH         LINE#         46
-  C:01FEH         LINE#         47
-  C:0205H         LINE#         48
-  C:0208H         LINE#         49
+  C:01EEH         LINE#         41
+  C:01F2H         LINE#         42
+  C:01F2H         LINE#         45
+  C:0200H         LINE#         46
+  C:0200H         LINE#         47
+  C:0207H         LINE#         48
+  C:020AH         LINE#         49
   -------         ENDPROC       _DELAYS
   -------         ENDMOD        DELAY
 
@@ -222,42 +226,42 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   D:008CH         PUBLIC        TH0
   D:008AH         PUBLIC        TL0
   B:0088H.4       PUBLIC        TR0
-  C:0256H         PUBLIC        timer0Init
+  C:025AH         PUBLIC        timer0Init
   -------         PROC          TIMER0INIT
-  C:0256H         LINE#         4
-  C:0256H         LINE#         5
-  C:0259H         LINE#         6
-  C:025CH         LINE#         8
-  C:025FH         LINE#         9
-  C:0262H         LINE#         11
-  C:0264H         LINE#         12
-  C:0266H         LINE#         13
-  C:0268H         LINE#         14
+  C:025AH         LINE#         4
+  C:025AH         LINE#         5
+  C:025DH         LINE#         6
+  C:0260H         LINE#         8
+  C:0263H         LINE#         9
+  C:0266H         LINE#         11
+  C:0268H         LINE#         12
+  C:026AH         LINE#         13
+  C:026CH         LINE#         14
   -------         ENDPROC       TIMER0INIT
   -------         ENDMOD        TIMER0
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:59:03  PAGE 5
+
+
 
   -------         MODULE        KEYINPUT
   C:0000H         SYMBOL        _ICE_DUMMY_
   B:00B0H.0       PUBLIC        P3_0
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:37:14  PAGE 5
-
-
   B:00B0H.1       PUBLIC        P3_1
   B:00B0H.2       PUBLIC        P3_2
   B:00B0H.3       PUBLIC        P3_3
   D:0011H         PUBLIC        currentKeyState
   C:009AH         PUBLIC        keyRead
-  C:0225H         PUBLIC        keyScan
+  C:0227H         PUBLIC        keyScan
   D:0012H         PUBLIC        confirmedKey
   D:0013H         PUBLIC        keyDebounceTimer
   -------         PROC          KEYSCAN
-  C:0225H         LINE#         15
-  C:0225H         LINE#         16
-  C:022BH         LINE#         17
-  C:0231H         LINE#         18
-  C:0237H         LINE#         19
-  C:023DH         LINE#         20
-  C:023FH         LINE#         21
+  C:0227H         LINE#         15
+  C:0227H         LINE#         16
+  C:022DH         LINE#         17
+  C:0233H         LINE#         18
+  C:0239H         LINE#         19
+  C:023FH         LINE#         20
+  C:0241H         LINE#         21
   -------         ENDPROC       KEYSCAN
   -------         PROC          KEYREAD
   -------         DO            
@@ -295,13 +299,13 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   C:00DEH         LINE#         76
   C:00E0H         LINE#         78
   C:00E0H         LINE#         80
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:59:03  PAGE 6
+
+
   C:00E2H         LINE#         83
   C:00E9H         LINE#         84
   C:00ECH         LINE#         87
   C:00F2H         LINE#         89
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/19/2025  15:37:14  PAGE 6
-
-
   C:00F4H         LINE#         90
   C:00F6H         LINE#         93
   C:00F9H         LINE#         94
@@ -323,5 +327,5 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
 *** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
     SEGMENT: ?PR?_DELAYS?DELAY
 
-Program Size: data=23.0 xdata=0 code=637
+Program Size: data=23.0 xdata=0 code=652
 LINK/LOCATE RUN COMPLETE.  2 WARNING(S),  0 ERROR(S)

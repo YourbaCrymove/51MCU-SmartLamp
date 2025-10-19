@@ -14,6 +14,7 @@ unsigned char keyNumber;	// 存储按键的值
 // 系统初始化函数
 void systemInit(void) {
 	timer0Init();	// 初始化定时器0
+	updateIndicators();	// 初始化指示灯
 	
 	lightState = LAMP_CLOSE;	// 上电时，台灯默认关闭
 	pwmCount = 0;	// PWM周期计数初始为 0
@@ -28,6 +29,8 @@ void stateMachine(void) {
 	switch(keyNumber) {
 		case 1:		// 系统手动/自动模式切换
 			systemState =  (systemState==MANUAL)?AUTO:MANUAL;
+			// 更新指示灯
+            updateIndicators();
 			break;
 		case 2:    // 增加亮度挡位（循环）
 			if(systemState==MANUAL) {	// 按键2仅在手动模式下有效
@@ -42,6 +45,12 @@ void stateMachine(void) {
 	}
 }
 
+// 指示灯更新函数
+void updateIndicators(void) {
+    LED1 = !(systemState == AUTO);   // 自动模式指示灯
+    LED2 = !(systemState == MANUAL); // 手动模式指示灯
+}
+
 /* Main */
 void main() {	
 	systemInit();
@@ -49,13 +58,6 @@ void main() {
 	while(1) {
 		stateMachine();
 		
-		if(systemState == MANUAL) {
-			LED1 = 1;	// 关闭自动模式指示灯
-			LED2 = 0;	// 开启手动模式指示灯
-		} else {
-			LED1 = 0;	// 开启自动模式指示灯
-			LED2 = 1;	// 关闭手动模式指示灯
-		}
 	}
 }
 

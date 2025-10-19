@@ -23,4 +23,12 @@ typedef enum {
 	AUTO		// 自动模式
 } systemStatus;
 
+// 函数声明
+// 系统初始化函数
+void systemInit(void);
+// 状态机处理函数
+void stateMachine(void);
+// 指示灯更新函数
+void updateIndicators(void);
+
 #endif

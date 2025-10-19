@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  10/19/2025 15:37:14 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  10/19/2025 15:59:03 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -25,71 +25,73 @@ line level    source
   15          void systemInit(void) {
   16   1              timer0Init();   // 初始化定时器0
 *** WARNING C206 IN LINE 16 OF Users\main.c: 'timer0Init': missing function-prototype
-  17   1              
-  18   1              lightState = LAMP_CLOSE;        // 上电台灯时默认关闭
-  19   1              pwmCount = 0;   // PWM周期计数初始为 0
-  20   1              
-  21   1              systemState = MANUAL;   // 上电时系统处于手动模式
-  22   1      }
-  23          
-  24          // 状态机处理函数
-  25          // 处理按键输入，控制系统状态切换和台灯挡位修改
-  26          void stateMachine(void) {
-  27   1              keyNumber = keyRead();
-  28   1              switch(keyNumber) {
-  29   2                      case 1:         // 系统手动/自动模式切换
-  30   2                              systemState =  (systemState==MANUAL)?AUTO:MANUAL;
-  31   2                              break;
-  32   2                      case 2:    // 增加亮度挡位（循环）
-  33   2                              if(systemState==MANUAL) {       // 按键2仅在手动模式下有效
-  34   3                                      lightState = (lightState + 1) % 5;
-  35   3                              }
-  36   2                              break;
-  37   2                      case 3:    // 降低亮度挡位（循环）
-  38   2                              if(systemState==MANUAL) {       // 按键3仅在手动模式下有效
-  39   3                                      lightState = (lightState - 1 + 5) % 5;
-  40   3                              }
-  41   2                              break;
-  42   2              }
-  43   1      }
-  44          
-  45          /* Main */
-  46          void main() {   
-  47   1              systemInit();
-  48   1              
-  49   1              while(1) {
-  50   2                      stateMachine();
-  51   2                      
-  52   2                      if(systemState == MANUAL) {
-  53   3                              LED1 = 1;       // 关闭自动模式指示灯
-C51 COMPILER V9.54   MAIN                                                                  10/19/2025 15:37:14 PAGE 2   
+  17   1              updateIndicators();     // 初始化指示灯
+  18   1              
+  19   1              lightState = LAMP_CLOSE;        // 上电时，台灯默认关闭
+  20   1              pwmCount = 0;   // PWM周期计数初始为 0
+  21   1              
+  22   1              systemState = MANUAL;   // 上电时，系统处于手动模式
+  23   1      }
+  24          
+  25          // 状态机处理函数
+  26          // 处理按键输入，控制系统状态切换和台灯挡位修改
+  27          void stateMachine(void) {
+  28   1              keyNumber = keyRead();
+  29   1              switch(keyNumber) {
+  30   2                      case 1:         // 系统手动/自动模式切换
+  31   2                              systemState =  (systemState==MANUAL)?AUTO:MANUAL;
+  32   2                              // 更新指示灯
+  33   2                  updateIndicators();
+  34   2                              break;
+  35   2                      case 2:    // 增加亮度挡位（循环）
+  36   2                              if(systemState==MANUAL) {       // 按键2仅在手动模式下有效
+  37   3                                      lightState = (lightState + 1) % 5;      // 枚举变量可以使用自增/自减操作
+  38   3                              }
+  39   2                              break;
+  40   2                      case 3:    // 降低亮度挡位（循环）
+  41   2                              if(systemState==MANUAL) {       // 按键3仅在手动模式下有效
+  42   3                                      lightState = (lightState - 1 + 5) % 5;
+  43   3                              }
+  44   2                              break;
+  45   2              }
+  46   1      }
+  47          
+  48          // 指示灯更新函数
+  49          void updateIndicators(void) {
+  50   1          LED1 = !(systemState == AUTO);   // 自动模式指示灯
+  51   1          LED2 = !(systemState == MANUAL); // 手动模式指示灯
+  52   1      }
+  53          
+C51 COMPILER V9.54   MAIN                                                                  10/19/2025 15:59:03 PAGE 2   
 
-  54   3                              LED2 = 0;       // 开启手动模式指示灯
-  55   3                      } else {
-  56   3                              LED1 = 0;       // 开启自动模式指示灯
-  57   3                              LED2 = 1;       // 关闭手动模式指示灯
-  58   3                      }
-  59   2              }
-  60   1      }
-  61          
-  62          // 定时器0中断服务函数，每10us中断一次
-  63          void timer0_ISR(void) interrupt 1 {
-  64   1          // 重装载初值，保证每次定时一致
-  65   1          TH0 = (65536 - 9) / 256;  
-  66   1          TL0 = (65536 - 9) % 256;  
-  67   1          
-  68   1              pwmCount++;
-  69   1          pwmCount %= 100;
-  70   1              if(pwmCount < lightGrade[lightState]) {
-  71   2                      LED_MAIN = 0;   // 台灯引脚给 0 亮
-  72   2              } else {
-  73   2                      LED_MAIN = 1;   // 台灯引脚给 1 灭
-  74   2              }
-  75   1      }
+  54          /* Main */
+  55          void main() {   
+  56   1              systemInit();
+  57   1              
+  58   1              while(1) {
+  59   2                      stateMachine();
+  60   2                      
+  61   2              }
+  62   1      }
+  63          
+  64          // 定时器0中断服务函数，每10us中断一次
+  65          void timer0_ISR(void) interrupt 1 {
+  66   1          // 重装载初值，保证每次定时一致
+  67   1          TH0 = (65536 - 9) / 256;  
+  68   1          TL0 = (65536 - 9) % 256;  
+  69   1          
+  70   1              pwmCount++;
+  71   1          pwmCount %= 100;
+  72   1              if(pwmCount < lightGrade[lightState]) {
+  73   2                      LED_MAIN = 0;   // 台灯引脚给 0 亮
+  74   2              } else {
+  75   2                      LED_MAIN = 1;   // 台灯引脚给 1 灭
+  76   2              }
+  77   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    156    ----
+   CODE SIZE        =    171    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
