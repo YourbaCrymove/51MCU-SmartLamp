@@ -1,4 +1,4 @@
-C51 COMPILER V9.54   MAIN                                                                  10/19/2025 15:59:03 PAGE 1   
+C51 COMPILER V9.54   MAIN                                                                  10/22/2025 21:42:59 PAGE 1   
 
 
 C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
@@ -20,74 +20,79 @@ line level    source
   10          systemStatus systemState;       // 用于存储系统所处模式
   11          unsigned char keyNumber;        // 存储按键的值
   12          
-  13          /* 函数声明区域 */
-  14          // 系统初始化函数
-  15          void systemInit(void) {
-  16   1              timer0Init();   // 初始化定时器0
-*** WARNING C206 IN LINE 16 OF Users\main.c: 'timer0Init': missing function-prototype
-  17   1              updateIndicators();     // 初始化指示灯
-  18   1              
-  19   1              lightState = LAMP_CLOSE;        // 上电时，台灯默认关闭
-  20   1              pwmCount = 0;   // PWM周期计数初始为 0
-  21   1              
-  22   1              systemState = MANUAL;   // 上电时，系统处于手动模式
-  23   1      }
-  24          
-  25          // 状态机处理函数
-  26          // 处理按键输入，控制系统状态切换和台灯挡位修改
-  27          void stateMachine(void) {
-  28   1              keyNumber = keyRead();
-  29   1              switch(keyNumber) {
-  30   2                      case 1:         // 系统手动/自动模式切换
-  31   2                              systemState =  (systemState==MANUAL)?AUTO:MANUAL;
-  32   2                              // 更新指示灯
-  33   2                  updateIndicators();
-  34   2                              break;
-  35   2                      case 2:    // 增加亮度挡位（循环）
-  36   2                              if(systemState==MANUAL) {       // 按键2仅在手动模式下有效
-  37   3                                      lightState = (lightState + 1) % 5;      // 枚举变量可以使用自增/自减操作
-  38   3                              }
-  39   2                              break;
-  40   2                      case 3:    // 降低亮度挡位（循环）
-  41   2                              if(systemState==MANUAL) {       // 按键3仅在手动模式下有效
-  42   3                                      lightState = (lightState - 1 + 5) % 5;
-  43   3                              }
-  44   2                              break;
-  45   2              }
-  46   1      }
-  47          
-  48          // 指示灯更新函数
-  49          void updateIndicators(void) {
-  50   1          LED1 = !(systemState == AUTO);   // 自动模式指示灯
-  51   1          LED2 = !(systemState == MANUAL); // 手动模式指示灯
-  52   1      }
-  53          
-C51 COMPILER V9.54   MAIN                                                                  10/19/2025 15:59:03 PAGE 2   
+  13          bit human;      // 0-表示没人，1-表示有人
+  14          
+  15          /* 函数声明区域 */
+  16          // 系统初始化函数
+  17          void systemInit(void) {
+  18   1              timer0Init();   // 初始化定时器0
+*** WARNING C206 IN LINE 18 OF Users\main.c: 'timer0Init': missing function-prototype
+  19   1              updateIndicators();     // 初始化指示灯
+  20   1              
+  21   1              lightState = LAMP_CLOSE;        // 上电时，台灯默认关闭
+  22   1              pwmCount = 0;   // PWM周期计数初始为 0
+  23   1              
+  24   1              systemState = MANUAL;   // 上电时，系统处于手动模式
+  25   1      }
+  26          
+  27          // 状态机处理函数
+  28          // 处理按键输入，控制系统状态切换和台灯挡位修改
+  29          void stateMachine(void) {
+  30   1              keyNumber = keyRead();
+  31   1              switch(keyNumber) {
+  32   2                      case 1:         // 系统手动/自动模式切换
+  33   2                              systemState =  (systemState==MANUAL)?AUTO:MANUAL;
+  34   2                              // 更新指示灯
+  35   2                  updateIndicators();
+  36   2                              break;
+  37   2                      case 2:    // 增加亮度挡位（循环）
+  38   2                              if(systemState==MANUAL) {       // 按键2仅在手动模式下有效
+  39   3                                      lightState = (lightState + 1) % 5;      // 枚举变量可以使用自增/自减操作
+  40   3                              }
+  41   2                              break;
+  42   2                      case 3:    // 降低亮度挡位（循环）
+  43   2                              if(systemState==MANUAL) {       // 按键3仅在手动模式下有效
+  44   3                                      lightState = (lightState - 1 + 5) % 5;
+  45   3                              }
+  46   2                              break;
+  47   2                      case 4:         // 用按键4模拟人来
+  48   2                              break;
+  49   2              }
+  50   1      }
+  51          
+  52          // 指示灯更新函数
+  53          void updateIndicators(void) {
+C51 COMPILER V9.54   MAIN                                                                  10/22/2025 21:42:59 PAGE 2   
 
-  54          /* Main */
-  55          void main() {   
-  56   1              systemInit();
-  57   1              
-  58   1              while(1) {
-  59   2                      stateMachine();
-  60   2                      
-  61   2              }
-  62   1      }
-  63          
-  64          // 定时器0中断服务函数，每10us中断一次
-  65          void timer0_ISR(void) interrupt 1 {
-  66   1          // 重装载初值，保证每次定时一致
-  67   1          TH0 = (65536 - 9) / 256;  
-  68   1          TL0 = (65536 - 9) % 256;  
-  69   1          
-  70   1              pwmCount++;
-  71   1          pwmCount %= 100;
-  72   1              if(pwmCount < lightGrade[lightState]) {
-  73   2                      LED_MAIN = 0;   // 台灯引脚给 0 亮
-  74   2              } else {
-  75   2                      LED_MAIN = 1;   // 台灯引脚给 1 灭
-  76   2              }
-  77   1      }
+  54   1          LED1 = !(systemState == AUTO);   // 自动模式指示灯
+  55   1          LED2 = !(systemState == MANUAL); // 手动模式指示灯
+  56   1      }
+  57          
+  58          
+  59          /* Main */
+  60          void main() {   
+  61   1              systemInit();
+  62   1              
+  63   1              while(1) {
+  64   2                      stateMachine();
+  65   2                      
+  66   2              }
+  67   1      }
+  68          
+  69          // 定时器0中断服务函数，每10us中断一次
+  70          void timer0_ISR(void) interrupt 1 {
+  71   1          // 重装载初值，保证每次定时一致
+  72   1          TH0 = (65536 - 9) / 256;  
+  73   1          TL0 = (65536 - 9) % 256;  
+  74   1          
+  75   1              pwmCount++;
+  76   1          pwmCount %= 100;
+  77   1              if(pwmCount < lightGrade[lightState]) {
+  78   2                      LED_MAIN = 0;   // 照明灯引脚给 0 亮
+  79   2              } else {
+  80   2                      LED_MAIN = 1;   // 照明灯引脚给 1 灭
+  81   2              }
+  82   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
@@ -97,7 +102,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    PDATA SIZE       =   ----    ----
    DATA SIZE        =      9    ----
    IDATA SIZE       =   ----    ----
-   BIT SIZE         =   ----    ----
+   BIT SIZE         =      1    ----
 END OF MODULE INFORMATION.
 
 
