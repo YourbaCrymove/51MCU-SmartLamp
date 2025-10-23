@@ -1,0 +1,209 @@
+C51 COMPILER V9.54   MAIN                                                                  10/23/2025 21:57:59 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\Core\main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Common;..\Core;..\Driv
+                    -er\keyInput;..\Driver\nixie;..\Driver\timer0;..\Driver\xpt2046) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) OBJECT(.\O
+                    -bjects\main.obj)
+
+line level    source
+
+   1          
+   2          
+   3          /* 头文件包含区域 */
+   4          #include "main.h"
+   5          
+   6          /* 变量声明区域 */
+   7          lightStatus lightState; // 台灯状态变量
+   8          unsigned char lightGrade[5] = {0, 25, 50, 75, 100};     // 台灯等级
+   9          unsigned char pwmCount;         // PWM周期计数（0~99，累计100×10μs=1ms）
+  10          
+  11          systemStatus systemState;       // 用于存储系统所处模式
+  12          unsigned char keyNumber;        // 存储按键的值
+  13          
+  14          bit humanFlag;  // 0-表示没人，1-表示有人
+  15          unsigned char timeCount;        // 人走计时
+  16          unsigned long count;    // 模拟预分频器
+  17          bit countFlag;  // 计时标志位
+  18          
+  19          unsigned int lightIntensity;    // 存储光线强度值
+  20          unsigned char nixieBuf[4];      // 显示光线强度
+  21          
+  22          /* 函数声明区域 */
+  23          // 系统初始化函数
+  24          void systemInit(void) {
+  25   1              timer0Init();   // 初始化定时器0
+  26   1              updateDisplay();        // 初始化指示灯
+  27   1              
+  28   1              lightState = LAMP_MEDIUM;       // 上电时，台灯默认中等亮度
+  29   1              pwmCount = 0;   // PWM周期计数初始为 0
+  30   1              
+  31   1              systemState = MANUAL;   // 上电时，系统处于手动模式
+  32   1              humanFlag = 1;  // 上电时默认有人
+  33   1              timeCount = 0;  // 初始化倒计时时间
+  34   1              count = 0;      // 初始化预分频器
+  35   1              countFlag = 0;  // 默认不计时
+  36   1              
+  37   1              lightIntensity = 0;
+  38   1              nixieBuf[0] = 0;
+  39   1              nixieBuf[1] = 0;
+  40   1              nixieBuf[2] = 0;
+  41   1              nixieBuf[3] = 0;
+  42   1      }
+  43          
+  44          // 状态机处理函数
+  45          // 处理按键输入，控制系统状态切换和台灯挡位修改
+  46          void stateMachine(void) {
+  47   1              keyNumber = keyRead();
+  48   1              switch(keyNumber) {
+  49   2                      case 1:         // 系统手动/自动模式切换
+  50   2                              systemState =  (systemState==MANUAL)?AUTO:MANUAL;
+  51   2                              // 手动模式表示有人来
+  52   2                              if(systemState==MANUAL) {
+  53   3                                      humanFlag = 1;
+C51 COMPILER V9.54   MAIN                                                                  10/23/2025 21:57:59 PAGE 2   
+
+  54   3                              }
+  55   2                              // 如果是自动模式，设置中等亮度
+  56   2                              if(systemState == AUTO) {
+  57   3                                      lightState = LAMP_MEDIUM;
+  58   3                                      // 重置计时器并开始计时
+  59   3                                      timeCount = 0;
+  60   3                                      countFlag = 1;
+  61   3                              }
+  62   2                              // 更新指示灯
+  63   2                  updateDisplay();
+  64   2                              break;
+  65   2                      case 2:    // 增加亮度挡位（循环）
+  66   2                              if(systemState==MANUAL) {       // 按键2仅在手动模式下有效
+  67   3                                      lightState = (lightState + 1) % 5;      // 枚举变量可以使用自增/自减操作
+  68   3                              }
+  69   2                              break;
+  70   2                      case 3:    // 降低亮度挡位（循环）
+  71   2                              if(systemState==MANUAL) {       // 按键3仅在手动模式下有效
+  72   3                                      lightState = (lightState - 1 + 5) % 5;
+  73   3                              }
+  74   2                              break;
+  75   2                      case 4:         // 用按键4模拟人来
+  76   2                              // 只在自动模式下有用
+  77   2                              if(systemState == AUTO) {
+  78   3                                      humanFlag = 1;  // 模拟人来了，标志位置1                      
+  79   3                                      // 人来了之后就重置并开始计时
+  80   3                                      timeCount = 0;
+  81   3                                      countFlag = 1;
+  82   3                              }                       
+  83   2                              break;
+  84   2              }
+  85   1      }
+  86          
+  87          // 台灯自动控制
+  88          // 根据光线自动调节照明灯亮度
+  89          void lampAutoControl(void) {
+  90   1              // 系统模式处于非自动模式并且没检测到人
+  91   1              if(systemState!=AUTO || humanFlag==0) {
+  92   2                      return; // 如果不处于自动模式就结束函数
+  93   2              }
+  94   1              lightIntensity = xpt2046_read_adc_value(0xA4);  // 存储光敏电阻的值
+  95   1              
+  96   1              // 光敏电阻的范围是0-4095，将其分为五个档次，分别对应照明灯状态
+  97   1              // 即：光线越弱，照明越强
+  98   1              if(lightIntensity>0 && lightIntensity<LIGHT_LOWEST) {
+  99   2                      lightState = LAMP_HIGHTEST;
+ 100   2              } else if(lightIntensity>LIGHT_LOWEST && lightIntensity<LIGHT_LOW) {
+ 101   2                      lightState = LAMP_HIGHT;
+ 102   2              } else if(lightIntensity>LIGHT_LOW && lightIntensity<LIGHT_MEDIUM) {
+ 103   2                      lightState = LAMP_MEDIUM;
+ 104   2              } else if(lightIntensity>LIGHT_MEDIUM && lightIntensity<LIGHT_HIGH) {
+ 105   2                      lightState = LAMP_LOW;
+ 106   2              } else if(lightIntensity>LIGHT_HIGH && lightIntensity<LIGHT_MAX) {
+ 107   2                      lightState = LAMP_CLOSE;
+ 108   2              }
+ 109   1              
+ 110   1      }
+ 111          
+ 112          // 指示灯更新函数
+ 113          void updateDisplay(void) {
+ 114   1              nixieBuf[0] = lightIntensity/1000;      // 4095/1000=4
+ 115   1              nixieBuf[1] = lightIntensity%1000/100;  // 4095%1000=095,095/100=0
+C51 COMPILER V9.54   MAIN                                                                  10/23/2025 21:57:59 PAGE 3   
+
+ 116   1              nixieBuf[2] = lightIntensity%1000%100/10;
+ 117   1              nixieBuf[3] = lightIntensity%1000%100%10;
+ 118   1              
+ 119   1          LED1 = !(systemState == AUTO);   // 自动模式指示灯
+ 120   1          LED2 = !(systemState == MANUAL); // 手动模式指示灯
+ 121   1      }
+ 122          
+ 123          // 数据显示函数：扫描刷新4位数码管（动态显示）
+ 124          void dataDisplay(void) {
+ 125   1              nixieScan(5, nixieBuf[0], 0);
+ 126   1              nixieScan(6, nixieBuf[1], 0);
+ 127   1              nixieScan(7, nixieBuf[2], 0);
+ 128   1              nixieScan(8, nixieBuf[3], 0);
+ 129   1      }
+ 130          
+ 131          /* Main */
+ 132          void main() {   
+ 133   1              systemInit();   // 系统初始化
+ 134   1              
+ 135   1              while(1) {
+ 136   2                      stateMachine(); // 处理按键输入
+ 137   2                      lampAutoControl();      // 台灯自动控制
+ 138   2                      updateDisplay();        // 更新数据
+ 139   2                      dataDisplay();  // 显示数据
+ 140   2                      
+ 141   2              }
+ 142   1      }
+ 143          
+ 144          // 定时器0中断服务函数，每100us中断一次
+ 145          void timer0_ISR(void) interrupt 1 {
+ 146   1          // 重装载初值，保证每次定时一致
+ 147   1          TH0 = (65536 - 92) / 256;
+ 148   1          TL0 = (65536 - 92) % 256;
+ 149   1          
+ 150   1              if(countFlag) { // 计时标志位=1，则开始计时
+ 151   2                      count++;
+ 152   2                      if(count == 10000) {    // 1ms * 1 000 = 1s
+ 153   3                              count = 0;
+ 154   3                              timeCount++;
+ 155   3                              // 如果等于预设时间就停止计时，并设置人离开
+ 156   3                              // 实际测量时间时7s多暂时不清楚原因，我先完成功能，后面再来优化
+ 157   3                              if(timeCount == LAMP_CLOSE_TIME) {
+ 158   4                                      countFlag = 0;
+ 159   4                                      humanFlag = 0;  // 置0表示人走了
+ 160   4                              }
+ 161   3                      }
+ 162   2              }       
+ 163   1              
+ 164   1              pwmCount++;
+ 165   1          pwmCount %= 100;
+ 166   1              // 简化的PWM输出逻辑
+ 167   1          if(humanFlag == 1) {
+ 168   2              // 有人，正常PWM调光
+ 169   2              if(pwmCount < lightGrade[lightState]) {
+ 170   3                  LED_MAIN = 0;    // 照明灯引脚给 0 亮
+ 171   3              } else {
+ 172   3                  LED_MAIN = 1;    // 照明灯引脚给 1 灭
+ 173   3              }
+ 174   2          } else {
+ 175   2              // 没人，灯熄灭
+ 176   2              LED_MAIN = 1;    // 照明灯引脚给 1 灭
+ 177   2          }
+C51 COMPILER V9.54   MAIN                                                                  10/23/2025 21:57:59 PAGE 4   
+
+ 178   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    612    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     20    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

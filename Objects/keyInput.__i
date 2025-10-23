@@ -1,1 +1,0 @@
-"Driver\keyInput.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Users;.\Driver) DEBUG OBJECTEXTEND PRINT(.\Listings\keyInput.lst) OBJECT(.\Objects\keyInput.obj)
