@@ -8,6 +8,9 @@ sbit LED_MAIN = P2^0;	// 目前给主照明灯随便弄了引脚，到时候有�
 sbit LED1 = P2^6;	// 自动模式指示灯
 sbit LED2 = P2^7;	// 手动模式指示灯
 
+// 无人时台灯延时关闭时间
+#define LAMP_CLOSE_TIME 5
+
 // 照明灯状态枚举
 typedef enum {
 	LAMP_CLOSE,		// 1档- 关闭
