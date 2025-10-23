@@ -1,6 +1,5 @@
 /* 头文件包含区域 */
 #include "main.h"
-#include "keyInput.h"
 
 /* 变量声明区域 */
 lightStatus lightState;	// 台灯状态变量
@@ -15,11 +14,14 @@ unsigned char timeCount;	// 人走计时
 unsigned long count;	// 模拟预分频器
 bit countFlag;	// 计时标志位
 
+unsigned int lightIntensity;	// 存储光线强度值
+unsigned char nixieBuf[4];	// 显示光线强度
+
 /* 函数声明区域 */
 // 系统初始化函数
 void systemInit(void) {
 	timer0Init();	// 初始化定时器0
-	updateIndicators();	// 初始化指示灯
+	updateDisplay();	// 初始化指示灯
 	
 	lightState = LAMP_MEDIUM;	// 上电时，台灯默认中等亮度
 	pwmCount = 0;	// PWM周期计数初始为 0
@@ -29,6 +31,12 @@ void systemInit(void) {
 	timeCount = 0;	// 初始化倒计时时间
 	count = 0;	// 初始化预分频器
 	countFlag = 0;	// 默认不计时
+	
+	lightIntensity = 0;
+	nixieBuf[0] = 0;
+	nixieBuf[1] = 0;
+	nixieBuf[2] = 0;
+	nixieBuf[3] = 0;
 }
 
 // 状态机处理函数
@@ -50,7 +58,7 @@ void stateMachine(void) {
 				countFlag = 1;
 			}
 			// 更新指示灯
-            updateIndicators();
+            updateDisplay();
 			break;
 		case 2:    // 增加亮度挡位（循环）
 			if(systemState==MANUAL) {	// 按键2仅在手动模式下有效
@@ -81,15 +89,42 @@ void lampAutoControl(void) {
 	if(systemState!=AUTO || humanFlag==0) {
 		return;	// 如果不处于自动模式就结束函数
 	}
+	lightIntensity = xpt2046_read_adc_value(0xA4);	// 存储光敏电阻的值
+	
+	// 光敏电阻的范围是0-4095，将其分为五个档次，分别对应照明灯状态
+	// 即：光线越弱，照明越强
+	if(lightIntensity>0 && lightIntensity<LIGHT_LOWEST) {
+		lightState = LAMP_HIGHTEST;
+	} else if(lightIntensity>LIGHT_LOWEST && lightIntensity<LIGHT_LOW) {
+		lightState = LAMP_HIGHT;
+	} else if(lightIntensity>LIGHT_LOW && lightIntensity<LIGHT_MEDIUM) {
+		lightState = LAMP_MEDIUM;
+	} else if(lightIntensity>LIGHT_MEDIUM && lightIntensity<LIGHT_HIGH) {
+		lightState = LAMP_LOW;
+	} else if(lightIntensity>LIGHT_HIGH && lightIntensity<LIGHT_MAX) {
+		lightState = LAMP_CLOSE;
+	}
 	
 }
 
 // 指示灯更新函数
-void updateIndicators(void) {
+void updateDisplay(void) {
+	nixieBuf[0] = lightIntensity/1000;	// 4095/1000=4
+	nixieBuf[1] = lightIntensity%1000/100;	// 4095%1000=095,095/100=0
+	nixieBuf[1] = lightIntensity%1000%100/10;
+	nixieBuf[1] = lightIntensity%1000%100%10;
+	
     LED1 = !(systemState == AUTO);   // 自动模式指示灯
     LED2 = !(systemState == MANUAL); // 手动模式指示灯
 }
 
+// 数据显示函数：扫描刷新4位数码管（动态显示）
+void dataDisplay(void) {
+	nixieScan(5, nixieBuf[0], 0);
+	nixieScan(6, nixieBuf[1], 0);
+	nixieScan(7, nixieBuf[2], 0);
+	nixieScan(8, nixieBuf[3], 0);
+}
 
 /* Main */
 void main() {	
@@ -97,7 +132,10 @@ void main() {
 	
 	while(1) {
 		stateMachine();	// 处理按键输入
-		lampAutoControl();
+		lampAutoControl();	// 台灯自动控制
+		updateDisplay();	// 更新数据
+		dataDisplay();	// 显示数据
+		
 	}
 }
 
@@ -113,7 +151,7 @@ void timer0_ISR(void) interrupt 1 {
 			count = 0;
 			timeCount++;
 			// 如果等于预设时间就停止计时，并设置人离开
-			// 实际测量时间时7s多暂时不清楚原因，稍后再来解决
+			// 实际测量时间时7s多暂时不清楚原因，我先完成功能，后面再来优化
 			if(timeCount == LAMP_CLOSE_TIME) {
 				countFlag = 0;
 				humanFlag = 0;	// 置0表示人走了

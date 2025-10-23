@@ -414,6 +414,26 @@
               <FileType>5</FileType>
               <FilePath>.\Driver\keyConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>XPT2046.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Driver\XPT2046.c</FilePath>
+            </File>
+            <File>
+              <FileName>XPT2046.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Driver\XPT2046.h</FilePath>
+            </File>
+            <File>
+              <FileName>nixieSTC89C52RC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Driver\nixieSTC89C52RC.c</FilePath>
+            </File>
+            <File>
+              <FileName>nixieSTC89C52RC.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Driver\nixieSTC89C52RC.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

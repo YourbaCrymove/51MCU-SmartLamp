@@ -1,0 +1,1 @@
+"Driver\nixieSTC89C52RC.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\Users;.\Driver) DEBUG OBJECTEXTEND PRINT(.\Listings\nixieSTC89C52RC.lst) OBJECT(.\Objects\nixieSTC89C52RC.obj)
