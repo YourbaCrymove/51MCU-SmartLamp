@@ -4,7 +4,7 @@
 
 // 共阳极数码管段码表（0-9）
 // 段码顺序：dp g f e d c b a (P0.7-P0.0)
-unsigned char code nixieTable[] = {
+static unsigned char code nixieTable[] = {
     0x3f, 0x06, 0x5b, 0x4f, 0x66,		// 显示 0-4
     0x6d, 0x7d, 0x07, 0x7f, 0x6f, 		// 显示 5-9
 	0x00
@@ -12,7 +12,7 @@ unsigned char code nixieTable[] = {
 
 // 位选数组：存储每个位置对应的CBA电平组合
 // 数组索引0-7对应位置1-8，每个元素的低3位分别对应C(P2_4)、B(P2_3)、A(P2_2)
-unsigned char code locationTable[] = {
+static unsigned char code locationTable[] = {
     0x07, 0x06, 0x05, 0x04,		// 位置 1-4
     0x03, 0x02, 0x01, 0x00		// 位置 5-8
 };

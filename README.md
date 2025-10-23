@@ -51,7 +51,7 @@
 ├── Core/                 # 核心代码（主函数、系统配置）
 │   ├── main.c
 │   └── main.h
-├── Driver/               # 外设驱动模块（原App下的子模块）
+├── Driver/               # 外设驱动模块
 │   ├── key/              # 按键驱动（原keyInput）
 │   │   ├── key.c
 │   │   └── key.h
@@ -73,12 +73,11 @@
 │   ├── 设计过程.md
 │   └── 技术说明.md
 ├── Project/              # 工程文件（避免根目录杂乱）
+│   ├── Listings/
+│   └── Objects/
 │   ├── project.uvgui.user  # 重命名：去掉不规范字符
 │   ├── project.uvopt
 │   └── project.uvproj
-├── Output/               # 编译输出（统一管理中间文件）
-│   ├── Listings/
-│   └── Objects/
 └── README.md
 ```
 

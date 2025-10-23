@@ -235,8 +235,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Driver\keyInput\keyInput.c</PathWithFileName>
-      <FilenameWithoutPath>keyInput.c</FilenameWithoutPath>
+      <PathWithFileName>..\Driver\xpt2046\xpt2046.c</PathWithFileName>
+      <FilenameWithoutPath>xpt2046.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -247,8 +247,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Driver\nixie\nixieSTC89C52RC.c</PathWithFileName>
-      <FilenameWithoutPath>nixieSTC89C52RC.c</FilenameWithoutPath>
+      <PathWithFileName>..\Driver\key\key.c</PathWithFileName>
+      <FilenameWithoutPath>key.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -259,8 +259,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Driver\timer0\timer0.c</PathWithFileName>
-      <FilenameWithoutPath>timer0.c</FilenameWithoutPath>
+      <PathWithFileName>..\Driver\nixie\nixie.c</PathWithFileName>
+      <FilenameWithoutPath>nixie.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -271,8 +271,20 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Driver\xpt2046\xpt2046.c</PathWithFileName>
-      <FilenameWithoutPath>xpt2046.c</FilenameWithoutPath>
+      <PathWithFileName>..\Driver\timer\timer.c</PathWithFileName>
+      <FilenameWithoutPath>timer.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>3</GroupNumber>
+      <FileNumber>7</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Driver\lightControl\lightControl.c</PathWithFileName>
+      <FilenameWithoutPath>lightControl.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

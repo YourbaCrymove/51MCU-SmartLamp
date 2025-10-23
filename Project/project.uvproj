@@ -312,7 +312,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\Common;..\Core;..\Driver\keyInput;..\Driver\nixie;..\Driver\timer0;..\Driver\xpt2046</IncludePath>
+              <IncludePath>..\Common;..\Core;..\Driver\nixie;..\Driver\xpt2046;..\Driver\key;..\Driver\timer;..\Driver\lightControl</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -385,24 +385,29 @@
           <GroupName>Driver</GroupName>
           <Files>
             <File>
-              <FileName>keyInput.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Driver\keyInput\keyInput.c</FilePath>
-            </File>
-            <File>
-              <FileName>nixieSTC89C52RC.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Driver\nixie\nixieSTC89C52RC.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Driver\timer0\timer0.c</FilePath>
-            </File>
-            <File>
               <FileName>xpt2046.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Driver\xpt2046\xpt2046.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\key\key.c</FilePath>
+            </File>
+            <File>
+              <FileName>nixie.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\nixie\nixie.c</FilePath>
+            </File>
+            <File>
+              <FileName>timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\timer\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>lightControl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Driver\lightControl\lightControl.c</FilePath>
             </File>
           </Files>
         </Group>

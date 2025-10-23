@@ -1,11 +1,11 @@
-#include "keyInput.h"
+#include "key.h"
 #include <regx52.h>
-#include "keyConfig.h"
+#include "config.h"
 
 // 全局变量定义
-keyState currentKeyState = KEY_STATE_IDLE;    // 当前按键状态机状态，初始为空闲状态
-unsigned char keyDebounceTimer = 0;           // 消抖计时器，用于计算消抖时间
-unsigned char confirmedKey = 0;               // 保存确认的按键值，确保返回正确的按键编号
+static keyState currentKeyState = KEY_STATE_IDLE;    // 当前按键状态机状态，初始为空闲状态
+static unsigned char keyDebounceTimer = 0;           // 消抖计时器，用于计算消抖时间
+static unsigned char confirmedKey = 0;               // 保存确认的按键值，确保返回正确的按键编号
 
 /**
  * @brief 扫描按键物理状态
