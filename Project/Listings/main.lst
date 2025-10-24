@@ -1,0 +1,239 @@
+C51 COMPILER V9.54   MAIN                                                                  10/24/2025 19:25:03 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\Core\main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Common;..\Core;..\Driv
+                    -er\nixie;..\Driver\xpt2046;..\Driver\key;..\Driver\timer;..\Driver\lightControl) DEBUG OBJECTEXTEND PRINT(.\Listings\mai
+                    -n.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          /**
+   2           * @file    main.c
+   3           * @brief   智能台灯系统主程序
+   4           * @details 实现台灯的手动/自动控制、亮度调节、人体检测等功能
+   5           * @author  YourbaCrymove
+   6           * @version 1.0
+   7           * @projectIntroduction 参考...\README.md
+   8           * @date    2025-10-24
+   9           */
+  10          /* 头文件包含区域 */
+  11          #include "main.h"
+  12          
+  13          /* 变量声明区域 */
+  14          static SystemData systemData;  // 系统数据实例
+  15          static SystemFlag systemFlag;  // 系统标志位实例
+  16          unsigned char keyNumber;       // 当前按键值
+  17          
+  18          
+  19          /**
+  20           * @brief 系统初始化函数
+  21           * @details 初始化定时器、GPIO、变量等系统资源
+  22           */
+  23          void systemInit(void) {
+  24   1          timer0Init();      // 初始化定时器0
+  25   1          updateDisplay();   // 初始化指示灯显示
+  26   1          
+  27   1          // 初始化系统状态
+  28   1          systemData.lightState = LAMP_MEDIUM;   // 默认中等亮度
+  29   1          systemData.pwmCount = 0;               // PWM计数器归零
+  30   1          
+  31   1          // 初始化亮度等级数组
+  32   1          systemData.lightGrade[0] = 0;    // 关闭
+  33   1          systemData.lightGrade[1] = 25;   // 25%亮度
+  34   1          systemData.lightGrade[2] = 50;   // 50%亮度
+  35   1          systemData.lightGrade[3] = 75;   // 75%亮度
+  36   1          systemData.lightGrade[4] = 100;  // 100%亮度
+  37   1          
+  38   1          systemData.systemState = MANUAL;       // 默认手动模式
+  39   1          systemFlag.humanFlag = 1;              // 默认有人
+  40   1          systemData.timeCount = 0;              // 计时器清零
+  41   1          systemFlag.count = 0;                  // 预分频器清零
+  42   1          systemFlag.countFlag = 0;              // 停止计时
+  43   1          
+  44   1          // 初始化显示数据
+  45   1          systemData.lightIntensity = 0;
+  46   1          systemData.nixieBuf[0] = 0;
+  47   1          systemData.nixieBuf[1] = 0;
+  48   1          systemData.nixieBuf[2] = 0;
+  49   1          systemData.nixieBuf[3] = 0;
+  50   1      }
+  51          
+  52          /**
+  53           * @brief 状态机处理函数
+C51 COMPILER V9.54   MAIN                                                                  10/24/2025 19:25:03 PAGE 2   
+
+  54           * @details 根据按键输入切换系统状态和调节亮度
+  55           */
+  56          void stateMachine(void) {
+  57   1          keyNumber = keyRead();
+  58   1          
+  59   1          switch(keyNumber) {
+  60   2              case 1:  // 手动/自动模式切换
+  61   2                  systemData.systemState = (systemData.systemState == MANUAL) ? AUTO : MANUAL;
+  62   2                  
+  63   2                  if(systemData.systemState == MANUAL) {
+  64   3                      systemFlag.humanFlag = 1;  // 手动模式默认有人
+  65   3                  }
+  66   2                  
+  67   2                  if(systemData.systemState == AUTO) {
+  68   3                      systemData.lightState = LAMP_MEDIUM;  // 自动模式重置亮度
+  69   3                      systemData.timeCount = 0;             // 重置计时器
+  70   3                      systemFlag.countFlag = 1;             // 开始计时
+  71   3                  }
+  72   2                  
+  73   2                  updateDisplay();  // 更新指示灯
+  74   2                  break;
+  75   2                  
+  76   2              case 2:  // 增加亮度挡位
+  77   2                  if(systemData.systemState == MANUAL) {
+  78   3                      systemData.lightState = (systemData.lightState + 1) % 5;
+  79   3                  }
+  80   2                  break;
+  81   2                  
+  82   2              case 3:  // 降低亮度挡位
+  83   2                  if(systemData.systemState == MANUAL) {
+  84   3                      systemData.lightState = (systemData.lightState - 1 + 5) % 5;
+  85   3                  }
+  86   2                  break;
+  87   2                  
+  88   2              case 4:  // 模拟人体检测(自动模式下)
+  89   2                  if(systemData.systemState == AUTO) {
+  90   3                      systemFlag.humanFlag = 1;      // 标记有人
+  91   3                      systemData.timeCount = 0;      // 重置计时
+  92   3                      systemFlag.countFlag = 1;      // 开始计时
+  93   3                  }
+  94   2                  break;
+  95   2          }
+  96   1      }
+  97          
+  98          /**
+  99           * @brief 台灯自动控制函数
+ 100           * @details 根据环境光线强度自动调节台灯亮度
+ 101           * @note 仅在自动模式且检测到有人时生效
+ 102           */
+ 103          void lampAutoControl(void) {
+ 104   1          // 检查模式条件
+ 105   1          if(systemData.systemState != AUTO || systemFlag.humanFlag == 0) {
+ 106   2              return;
+ 107   2          }
+ 108   1          
+ 109   1          // 读取光线传感器数据
+ 110   1          systemData.lightIntensity = xpt2046_read_adc_value(0xA4);
+ 111   1          
+ 112   1          // 根据光线强度设置亮度等级(光线越弱，亮度越高)
+ 113   1          if(systemData.lightIntensity > 0 && systemData.lightIntensity < LIGHT_LOWEST) {
+ 114   2              systemData.lightState = LAMP_HIGHEST;
+ 115   2          } else if(systemData.lightIntensity > LIGHT_LOWEST && systemData.lightIntensity < LIGHT_LOW) {
+C51 COMPILER V9.54   MAIN                                                                  10/24/2025 19:25:03 PAGE 3   
+
+ 116   2              systemData.lightState = LAMP_HIGH;
+ 117   2          } else if(systemData.lightIntensity > LIGHT_LOW && systemData.lightIntensity < LIGHT_MEDIUM) {
+ 118   2              systemData.lightState = LAMP_MEDIUM;
+ 119   2          } else if(systemData.lightIntensity > LIGHT_MEDIUM && systemData.lightIntensity < LIGHT_HIGH) {
+ 120   2              systemData.lightState = LAMP_LOW;
+ 121   2          } else if(systemData.lightIntensity > LIGHT_HIGH && systemData.lightIntensity < LIGHT_MAX) {
+ 122   2              systemData.lightState = LAMP_CLOSE;
+ 123   2          }
+ 124   1      }
+ 125          
+ 126          /**
+ 127           * @brief 指示灯更新函数
+ 128           * @details 更新模式指示灯状态和数码管显示数据
+ 129           */
+ 130          void updateDisplay(void) {
+ 131   1          // 更新数码管显示缓冲区
+ 132   1          systemData.nixieBuf[0] = systemData.lightIntensity / 1000;
+ 133   1          systemData.nixieBuf[1] = systemData.lightIntensity % 1000 / 100;
+ 134   1          systemData.nixieBuf[2] = systemData.lightIntensity % 1000 % 100 / 10;
+ 135   1          systemData.nixieBuf[3] = systemData.lightIntensity % 1000 % 100 % 10;
+ 136   1          
+ 137   1          // 更新模式指示灯
+ 138   1          LED1 = !(systemData.systemState == AUTO);    // 自动模式指示灯
+ 139   1          LED2 = !(systemData.systemState == MANUAL);  // 手动模式指示灯
+ 140   1      }
+ 141          
+ 142          /**
+ 143           * @brief 数码管数据显示函数
+ 144           * @details 扫描刷新4位数码管显示光线强度值
+ 145           */
+ 146          void dataDisplay(void) {
+ 147   1          nixieScan(5, systemData.nixieBuf[0], 0);
+ 148   1          nixieScan(6, systemData.nixieBuf[1], 0);
+ 149   1          nixieScan(7, systemData.nixieBuf[2], 0);
+ 150   1          nixieScan(8, systemData.nixieBuf[3], 0);
+ 151   1      }
+ 152          
+ 153          /**
+ 154           * @brief 主函数
+ 155           * @details 系统主循环，协调各功能模块运行
+ 156           */
+ 157          void main() {
+ 158   1          systemInit();  // 系统初始化
+ 159   1          
+ 160   1          while(1) {
+ 161   2              stateMachine();     // 处理按键输入
+ 162   2              lampAutoControl();  // 自动亮度控制
+ 163   2              updateDisplay();    // 更新显示数据
+ 164   2              dataDisplay();      // 刷新数码管显示
+ 165   2          }
+ 166   1      }
+ 167          
+ 168          /**
+ 169           * @brief 定时器0中断服务函数
+ 170           * @details 每100us中断一次，处理PWM输出和人走计时
+ 171           * @note 中断号1对应定时器0
+ 172           */
+ 173          void timer0_ISR(void) interrupt 1 {
+ 174   1          // 重装定时器初值(100us)
+ 175   1          TH0 = (65536 - 92) / 256;
+ 176   1          TL0 = (65536 - 92) % 256;
+ 177   1          
+C51 COMPILER V9.54   MAIN                                                                  10/24/2025 19:25:03 PAGE 4   
+
+ 178   1          // 人走计时处理
+ 179   1          if(systemFlag.countFlag) {
+ 180   2              systemFlag.count++;
+ 181   2              if(systemFlag.count == 10000) {  // 100us × 10000 = 1秒
+ 182   3                  systemFlag.count = 0;        // 重置计数器
+ 183   3                  systemData.timeCount++;      // 秒计数器递增
+ 184   3                  
+ 185   3                  // 检查是否达到关闭时间
+ 186   3                  if(systemData.timeCount == LAMP_CLOSE_TIME) {
+ 187   4                      systemFlag.countFlag = 0;   // 停止计时
+ 188   4                      systemFlag.humanFlag = 0;   // 标记无人
+ 189   4                  }
+ 190   3              }
+ 191   2          }
+ 192   1          
+ 193   1          // PWM输出处理
+ 194   1          systemData.pwmCount++;
+ 195   1          systemData.pwmCount %= 100;  // 保持0-99范围
+ 196   1          
+ 197   1          if(systemFlag.humanFlag == 1) {
+ 198   2              // 有人状态：根据亮度等级输出PWM
+ 199   2              if(systemData.pwmCount < systemData.lightGrade[systemData.lightState]) {
+ 200   3                  LED_MAIN = 0;  // 点亮主灯
+ 201   3              } else {
+ 202   3                  LED_MAIN = 1;  // 熄灭主灯
+ 203   3              }
+ 204   2          } else {
+ 205   2              // 无人状态：关闭主灯
+ 206   2              LED_MAIN = 1;
+ 207   2          }
+ 208   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    672    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     22    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

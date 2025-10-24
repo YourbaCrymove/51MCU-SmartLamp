@@ -1,0 +1,8 @@
+".\Objects\main.obj",
+".\Objects\delay.obj",
+".\Objects\xpt2046.obj",
+".\Objects\key.obj",
+".\Objects\nixie.obj",
+".\Objects\timer.obj" 
+TO ".\Objects\project" 
+PRINT(".\Listings\project.m51") RAMSIZE(256) 

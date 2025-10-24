@@ -1,0 +1,88 @@
+C51 COMPILER V9.54   NIXIE                                                                 10/24/2025 19:25:03 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE NIXIE
+OBJECT MODULE PLACED IN .\Objects\nixie.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\Driver\nixie\nixie.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Common;..\Cor
+                    -e;..\Driver\nixie;..\Driver\xpt2046;..\Driver\key;..\Driver\timer;..\Driver\lightControl) DEBUG OBJECTEXTEND PRINT(.\Lis
+                    -tings\nixie.lst) OBJECT(.\Objects\nixie.obj)
+
+line level    source
+
+   1          /**
+   2           * @file    nixie.c
+   3           * @brief   数码管显示驱动实现文件
+   4           * @details 实现8位共阳极数码管的动态扫描显示，支持小数点控制
+   5           * @author  智能台灯项目组
+   6           * @version 1.0
+   7           * @date    2025-10-24
+   8           */
+   9          #include "nixie.h"
+  10          #include <regx52.h>
+  11          #include "delay.h"
+  12          
+  13          // 共阳极数码管段码表（0-9）
+  14          // 段码顺序：dp g f e d c b a (P0.7-P0.0)
+  15          static unsigned char code nixieTable[] = {
+  16              0x3f, 0x06, 0x5b, 0x4f, 0x66,               // 显示 0-4
+  17              0x6d, 0x7d, 0x07, 0x7f, 0x6f,               // 显示 5-9
+  18                  0x00
+  19          };  
+  20          
+  21          // 位选数组：存储每个位置对应的CBA电平组合
+  22          // 数组索引0-7对应位置1-8，每个元素的低3位分别对应C(P2_4)、B(P2_3)、A(P2_2)
+  23          static unsigned char code locationTable[] = {
+  24              0x07, 0x06, 0x05, 0x04,             // 位置 1-4
+  25              0x03, 0x02, 0x01, 0x00              // 位置 5-8
+  26          };
+  27          
+  28          /**
+  29           * @brief 数码管显示函数
+  30           * @param location 数码管位置（1-8）
+  31           * @param number 要显示的数字（0-9）
+  32           * @param point 小数点（0表示不显示，1表示显示）
+  33           */
+  34          void nixieScan(unsigned char location, unsigned char number, unsigned char point) {   
+  35   1              unsigned char pos;              // 数组索引变量
+  36   1              
+  37   1          // 校验位置范围
+  38   1          if(location < 1 || location > 8) return;
+  39   1          if(number > 10) return;  // 0-9 + 熄灭状态
+  40   1          
+  41   1          // 根据位置设置位选信号（通过74HC138译码器）
+  42   1          pos = location - 1;  // 转换为数组索引
+  43   1          P2_4 = (locationTable[pos] >> 2) & 0x01;  // 提取C位
+  44   1          P2_3 = (locationTable[pos] >> 1) & 0x01;  // 提取B位
+  45   1          P2_2 = locationTable[pos] & 0x01;         // 提取A位
+  46   1          
+  47   1          // 设置段选信号（通过P0口输出段码）
+  48   1              if(point) {     // 判断是不是数码管的偶数位
+  49   2                      P0 = nixieTable[number] | 0x80;         // 偶数位加上小数点
+  50   2              } else {
+  51   2                      P0 = nixieTable[number];                // 奇数位正常显示
+  52   2              }
+  53   1          
+C51 COMPILER V9.54   NIXIE                                                                 10/24/2025 19:25:03 PAGE 2   
+
+  54   1          
+  55   1          // 静态显示数码管去掉下面两行代码
+  56   1          // 短暂延时，维持显示
+  57   1          delayMs(1);  // 约1ms延时，保证亮度
+  58   1          
+  59   1          // 消隐处理：关闭所有段，防止切换到下一个数码管时产生鬼影
+  60   1          P0 = 0x00;  // 所有段置高电平（共阳极数码管熄灭）
+  61   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     76    ----
+   CONSTANT SIZE    =     19    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

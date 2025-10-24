@@ -1,0 +1,103 @@
+C51 COMPILER V9.54   XPT2046                                                               10/24/2025 19:25:03 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE XPT2046
+OBJECT MODULE PLACED IN .\Objects\xpt2046.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\Driver\xpt2046\xpt2046.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Common;..
+                    -\Core;..\Driver\nixie;..\Driver\xpt2046;..\Driver\key;..\Driver\timer;..\Driver\lightControl) DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\xpt2046.lst) OBJECT(.\Objects\xpt2046.obj)
+
+line level    source
+
+   1          /**
+   2           * @file    xpt2046.c
+   3           * @brief   XPT2046触摸芯片驱动实现文件
+   4           * @details 实现SPI通信协议，读取12位ADC数据
+   5           * @author  智能台灯项目组
+   6           * @version 1.0
+   7           * @date    2025-10-24
+   8           */
+   9          #include "xpt2046.h"
+  10          #include "intrins.h"
+  11          
+  12          /**
+  13           * @brief XPT2046写数据函数
+  14           * @param dat 要写入的8位数据
+  15           * @details 通过模拟SPI协议向XPT2046发送命令字
+  16           */
+  17          void xpt2046_wirte_data(unsigned char dat) {
+  18   1              unsigned char i;
+  19   1      
+  20   1              CLK = 0;
+  21   1              _nop_();
+  22   1              for(i=0;i<8;i++) {      // 循环8次，每次传输一位，共一个字节
+  23   2                      DIN = dat >> 7; // 先传高位再传低位
+  24   2                      dat <<= 1;      // 将低位移到高位
+  25   2                      CLK = 0;        // CLK由低到高产生一个上升沿，从而写入数据
+  26   2                      _nop_();        
+  27   2                      CLK = 1;
+  28   2                      _nop_();
+  29   2              }
+  30   1      }
+  31          
+  32          /**
+  33           * @brief XPT2046读数据函数
+  34           * @return 12位ADC转换结果
+  35           * @details 通过模拟SPI协议从XPT2046读取12位数据
+  36           */
+  37          unsigned int xpt2046_read_data(void) {
+  38   1              unsigned char i;
+  39   1              unsigned int dat=0;
+  40   1      
+  41   1              CLK = 0;
+  42   1              _nop_();
+  43   1              for(i=0;i<12;i++) {     // 循环12次，每次读取一位，大于一个字节数，所以返回值类型�
+             -�u16
+  44   2                      dat <<= 1;
+  45   2                      CLK = 1;
+  46   2                      _nop_();
+  47   2                      CLK = 0;        // CLK由高到低产生一个下降沿，从而读取数据
+  48   2                      _nop_();
+  49   2                      dat |= DOUT;    // 先读取高位，再读取低位。 
+  50   2              }
+  51   1              return dat;     
+  52   1      }
+C51 COMPILER V9.54   XPT2046                                                               10/24/2025 19:25:03 PAGE 2   
+
+  53          
+  54          /**
+  55           * @brief 读取XPT2046 ADC转换值
+  56           * @param cmd 控制命令字
+  57           * @return 12位ADC转换结果(0-4095)
+  58           * @details 完整的ADC读取流程：片选→发送命令→等待转换→读取数据→释放片选
+  59           */
+  60          unsigned int xpt2046_read_adc_value(unsigned char cmd) {
+  61   1              unsigned char i;
+  62   1              unsigned int adc_value=0;
+  63   1      
+  64   1              CLK = 0;        // 先拉低时钟
+  65   1              CS  = 0;        // 使能XPT2046
+  66   1              xpt2046_wirte_data(cmd);        // 发送命令字
+  67   1              for(i=6; i>0; i--);     // 延时等待转换结果
+  68   1              CLK = 1;
+  69   1              _nop_();
+  70   1              CLK = 0;        // 发送一个时钟，清除BUSY
+  71   1              _nop_();
+  72   1              adc_value=xpt2046_read_data();
+  73   1              CS = 1;         // 关闭XPT2046
+  74   1              return adc_value;
+  75   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     88    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

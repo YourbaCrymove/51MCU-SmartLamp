@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        10/24/2025  19:16:42  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/24/2025  19:25:04  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -59,7 +59,7 @@ LINK MAP OF MODULE:  .\Objects\project (MAIN)
             CODE    0509H     0013H     UNIT         ?CO?NIXIE
             CODE    051CH     0013H     UNIT         ?PR?TIMER0INIT?TIMER
             CODE    052FH     0011H     UNIT         ?PR?MAIN?MAIN
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 2
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 2
 
 
             CODE    0540H     000AH     UNIT         ?C_INITSEG
@@ -119,7 +119,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   C:0000H         SYMBOL        _ICE_DUMMY_
   D:00A0H         PUBLIC        P2
   D:00B0H         PUBLIC        P3
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 3
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 3
 
 
   B:00A0H.6       PUBLIC        LED1
@@ -179,7 +179,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   C:029EH         LINE#         76
   C:029EH         LINE#         77
   C:02A2H         LINE#         78
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 4
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 4
 
 
   C:02A6H         LINE#         79
@@ -239,7 +239,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   C:052FH         LINE#         158
   C:0532H         LINE#         160
   C:0532H         LINE#         161
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 5
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 5
 
 
   C:0535H         LINE#         162
@@ -299,7 +299,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   -------         ENDPROC       _DELAYUS
   -------         PROC          _DELAYMS
   D:0006H         SYMBOL        ms
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 6
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 6
 
 
   -------         DO            
@@ -345,41 +345,41 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   -------         DO            
   D:0006H         SYMBOL        i
   -------         ENDDO         
-  C:045DH         LINE#         18
-  C:045DH         LINE#         21
-  C:045FH         LINE#         22
-  C:0460H         LINE#         23
-  C:0462H         LINE#         24
-  C:046DH         LINE#         25
-  C:0471H         LINE#         26
-  C:0473H         LINE#         27
-  C:0474H         LINE#         28
-  C:0476H         LINE#         29
-  C:0477H         LINE#         30
-  C:047BH         LINE#         31
+  C:045DH         LINE#         17
+  C:045DH         LINE#         20
+  C:045FH         LINE#         21
+  C:0460H         LINE#         22
+  C:0462H         LINE#         23
+  C:046DH         LINE#         24
+  C:0471H         LINE#         25
+  C:0473H         LINE#         26
+  C:0474H         LINE#         27
+  C:0476H         LINE#         28
+  C:0477H         LINE#         29
+  C:047BH         LINE#         30
   -------         ENDPROC       _XPT2046_WIRTE_DATA
   -------         PROC          XPT2046_READ_DATA
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 7
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 7
 
 
   -------         DO            
   D:0005H         SYMBOL        i
   D:0006H         SYMBOL        dat
   -------         ENDDO         
-  C:047CH         LINE#         38
-  C:047CH         LINE#         40
-  C:047FH         LINE#         42
-  C:0481H         LINE#         43
-  C:0482H         LINE#         44
-  C:0483H         LINE#         45
-  C:048AH         LINE#         46
-  C:048CH         LINE#         47
-  C:048DH         LINE#         48
-  C:048FH         LINE#         49
-  C:0490H         LINE#         50
-  C:0496H         LINE#         51
+  C:047CH         LINE#         37
+  C:047CH         LINE#         39
+  C:047FH         LINE#         41
+  C:0481H         LINE#         42
+  C:0482H         LINE#         43
+  C:0483H         LINE#         44
+  C:048AH         LINE#         45
+  C:048CH         LINE#         46
+  C:048DH         LINE#         47
+  C:048FH         LINE#         48
+  C:0490H         LINE#         49
+  C:0496H         LINE#         50
+  C:049AH         LINE#         51
   C:049AH         LINE#         52
-  C:049AH         LINE#         53
   -------         ENDPROC       XPT2046_READ_DATA
   -------         PROC          _XPT2046_READ_ADC_VALUE
   D:0007H         SYMBOL        cmd
@@ -387,20 +387,20 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   D:0007H         SYMBOL        i
   D:0004H         SYMBOL        adc_value
   -------         ENDDO         
-  C:04EFH         LINE#         61
-  C:04EFH         LINE#         63
-  C:04F2H         LINE#         65
-  C:04F4H         LINE#         66
-  C:04F6H         LINE#         67
-  C:04F9H         LINE#         68
-  C:04FDH         LINE#         69
-  C:04FFH         LINE#         70
-  C:0500H         LINE#         71
-  C:0502H         LINE#         72
-  C:0503H         LINE#         73
-  C:0506H         LINE#         74
+  C:04EFH         LINE#         60
+  C:04EFH         LINE#         62
+  C:04F2H         LINE#         64
+  C:04F4H         LINE#         65
+  C:04F6H         LINE#         66
+  C:04F9H         LINE#         67
+  C:04FDH         LINE#         68
+  C:04FFH         LINE#         69
+  C:0500H         LINE#         70
+  C:0502H         LINE#         71
+  C:0503H         LINE#         72
+  C:0506H         LINE#         73
+  C:0508H         LINE#         74
   C:0508H         LINE#         75
-  C:0508H         LINE#         76
   -------         ENDPROC       _XPT2046_READ_ADC_VALUE
   -------         ENDMOD        XPT2046
 
@@ -419,7 +419,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   D:0020H         SYMBOL        keyDebounceTimer
   -------         PROC          KEYSCAN
   C:04D4H         LINE#         23
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 8
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 8
 
 
   C:04D4H         LINE#         24
@@ -479,7 +479,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   C:0394H         LINE#         109
   -------         ENDPROC       KEYREAD
   -------         ENDMOD        KEY
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 9
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 9
 
 
 
@@ -539,7 +539,7 @@ SYMBOL TABLE OF MODULE:  .\Objects\project (MAIN)
   -------         ENDPROC       TIMER0INIT
   -------         ENDMOD        TIMER
 
-BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:16:42  PAGE 10
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/24/2025  19:25:04  PAGE 10
 
 
   -------         MODULE        ?C?UIDIV

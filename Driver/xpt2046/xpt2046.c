@@ -8,7 +8,6 @@
  */
 #include "xpt2046.h"
 #include "intrins.h"
-#include "config.h"
 
 /**
  * @brief XPT2046写数据函数

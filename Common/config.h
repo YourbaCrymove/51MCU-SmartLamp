@@ -9,10 +9,10 @@
 #define CONFIG_H
 
 // @defgroup xpt2046_pins XPT2046触摸芯片引脚定义
-sbit DOUT = P3^7;  // 数据输出引脚
-sbit CLK  = P3^6;  // 时钟信号引脚  
-sbit DIN  = P3^4;  // 数据输入引脚
-sbit CS   = P3^5;  // 片选信号引脚
+sbit DOUT = P3^7;  // XPT2046数据输出
+sbit CLK  = P3^6;  // XPT2046时钟信号  
+sbit DIN  = P3^4;  // XPT2046数据输入
+sbit CS   = P3^5;  // XPT2046片选
 
 
 // @defgroup led_pins LED灯引脚定义

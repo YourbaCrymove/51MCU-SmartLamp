@@ -1,0 +1,84 @@
+C51 COMPILER V9.54   DELAY                                                                 10/24/2025 19:25:03 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN .\Objects\delay.obj
+COMPILER INVOKED BY: D:\keil_v5\C51\BIN\C51.EXE ..\Common\delay.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Common;..\Core;..\D
+                    -river\nixie;..\Driver\xpt2046;..\Driver\key;..\Driver\timer;..\Driver\lightControl) DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -delay.lst) OBJECT(.\Objects\delay.obj)
+
+line level    source
+
+   1          /**
+   2           * @file    delay.c
+   3           * @brief   精确延时函数实现文件
+   4           * @details 基于11.0592MHz晶振的微秒、毫秒、秒级延时
+   5           * @author  智能台灯项目组
+   6           * @version 1.0
+   7           * @date    2025-10-24
+   8           */
+   9          #include "delay.h"
+  10          #include <regx52.h>
+  11          #include <intrins.h>
+  12          
+  13          /**
+  14           * 微秒级延时函数
+  15           * 说明：基于11.0592MHz晶振，每个机器周期约为1.085us
+  16           * @param us 延时微秒数，最大约为65535us
+  17           */
+  18          void delayUs(unsigned int us)
+  19          {
+  20   1          unsigned int i;
+  21   1          // 根据晶振频率计算循环次数，这里做了近似处理
+  22   1          for(i = 0; i < us; i++)
+  23   1          {
+  24   2              // 大约1us的延时（根据实际情况微调）
+  25   2              _nop_();_nop_();_nop_();_nop_();
+  26   2              _nop_();_nop_();_nop_();_nop_();
+  27   2              _nop_();_nop_();
+  28   2          }
+  29   1      }
+  30          
+  31          /**
+  32           * 毫秒级延时函数
+  33           * @param ms 延时毫秒数，最大约为65535ms
+  34           */
+  35          void delayMs(unsigned int ms)
+  36          {
+  37   1          unsigned int i, j;
+  38   1          for(i = 0; i < ms; i++)
+  39   1          {
+  40   2              // 大约1ms的延时（11.0592MHz晶振）
+  41   2              for(j = 0; j < 112; j++);
+  42   2          }
+  43   1      }
+  44          
+  45          /**
+  46           * 秒级延时函数
+  47           * @param s 延时秒数
+  48           */
+  49          void delayS(unsigned int s)
+  50          {
+  51   1          unsigned int i;
+  52   1          // 1秒 = 1000毫秒，通过循环调用毫秒延时函数实现
+  53   1          for(i = 0; i < s; i++)
+C51 COMPILER V9.54   DELAY                                                                 10/24/2025 19:25:03 PAGE 2   
+
+  54   1          {
+  55   2              delayMs(1000);  // 延时1000毫秒即1秒
+  56   2          }
+  57   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     89    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

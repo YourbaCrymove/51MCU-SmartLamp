@@ -6,8 +6,8 @@
  * @version 1.0
  * @date    2025-10-24
  */
-#ifndef TIMER0_H
-#define TIMER0_H
+#ifndef TIMER_H
+#define TIMER_H
 
 // 定时器0配置函数
 void timer0Init(void);

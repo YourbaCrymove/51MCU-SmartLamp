@@ -10,7 +10,7 @@
 #define XPT2046_H
 
 #include <regx52.h>
-
+#include "config.h"
 
 // @brief 读取XPT2046 ADC转换值
 unsigned int xpt2046_read_adc_value(unsigned char cmd);
