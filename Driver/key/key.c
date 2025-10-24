@@ -1,3 +1,11 @@
+/**
+ * @file    key.c
+ * @brief   按键驱动实现文件
+ * @details 基于状态机的按键消抖算法，支持4个独立按键
+ * @author  智能台灯项目组
+ * @version 1.0
+ * @date    2025-10-24
+ */
 #include "key.h"
 #include <regx52.h>
 #include "config.h"

@@ -404,11 +404,6 @@
               <FileType>1</FileType>
               <FilePath>..\Driver\timer\timer.c</FilePath>
             </File>
-            <File>
-              <FileName>lightControl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Driver\lightControl\lightControl.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>

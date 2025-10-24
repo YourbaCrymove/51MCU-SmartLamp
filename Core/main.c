@@ -1,178 +1,208 @@
-
-
+/**
+ * @file    main.c
+ * @brief   智能台灯系统主程序
+ * @details 实现台灯的手动/自动控制、亮度调节、人体检测等功能
+ * @author  YourbaCrymove
+ * @version 1.0
+ * @projectIntroduction 参考...\README.md
+ * @date    2025-10-24
+ */
 /* 头文件包含区域 */
 #include "main.h"
 
 /* 变量声明区域 */
-lightStatus lightState;	// 台灯状态变量
-unsigned char lightGrade[5] = {0, 25, 50, 75, 100};	// 台灯等级
-unsigned char pwmCount;		// PWM周期计数（0~99，累计100×10μs=1ms）
+static SystemData systemData;  // 系统数据实例
+static SystemFlag systemFlag;  // 系统标志位实例
+unsigned char keyNumber;       // 当前按键值
 
-systemStatus systemState;	// 用于存储系统所处模式
-unsigned char keyNumber;	// 存储按键的值
 
-bit humanFlag;	// 0-表示没人，1-表示有人
-unsigned char timeCount;	// 人走计时
-unsigned long count;	// 模拟预分频器
-bit countFlag;	// 计时标志位
-
-unsigned int lightIntensity;	// 存储光线强度值
-unsigned char nixieBuf[4];	// 显示光线强度
-
-/* 函数声明区域 */
-// 系统初始化函数
+/**
+ * @brief 系统初始化函数
+ * @details 初始化定时器、GPIO、变量等系统资源
+ */
 void systemInit(void) {
-	timer0Init();	// 初始化定时器0
-	updateDisplay();	// 初始化指示灯
-	
-	lightState = LAMP_MEDIUM;	// 上电时，台灯默认中等亮度
-	pwmCount = 0;	// PWM周期计数初始为 0
-	
-	systemState = MANUAL;	// 上电时，系统处于手动模式
-	humanFlag = 1;	// 上电时默认有人
-	timeCount = 0;	// 初始化倒计时时间
-	count = 0;	// 初始化预分频器
-	countFlag = 0;	// 默认不计时
-	
-	lightIntensity = 0;
-	nixieBuf[0] = 0;
-	nixieBuf[1] = 0;
-	nixieBuf[2] = 0;
-	nixieBuf[3] = 0;
+    timer0Init();      // 初始化定时器0
+    updateDisplay();   // 初始化指示灯显示
+    
+    // 初始化系统状态
+    systemData.lightState = LAMP_MEDIUM;   // 默认中等亮度
+    systemData.pwmCount = 0;               // PWM计数器归零
+    
+    // 初始化亮度等级数组
+    systemData.lightGrade[0] = 0;    // 关闭
+    systemData.lightGrade[1] = 25;   // 25%亮度
+    systemData.lightGrade[2] = 50;   // 50%亮度
+    systemData.lightGrade[3] = 75;   // 75%亮度
+    systemData.lightGrade[4] = 100;  // 100%亮度
+    
+    systemData.systemState = MANUAL;       // 默认手动模式
+    systemFlag.humanFlag = 1;              // 默认有人
+    systemData.timeCount = 0;              // 计时器清零
+    systemFlag.count = 0;                  // 预分频器清零
+    systemFlag.countFlag = 0;              // 停止计时
+    
+    // 初始化显示数据
+    systemData.lightIntensity = 0;
+    systemData.nixieBuf[0] = 0;
+    systemData.nixieBuf[1] = 0;
+    systemData.nixieBuf[2] = 0;
+    systemData.nixieBuf[3] = 0;
 }
 
-// 状态机处理函数
-// 处理按键输入，控制系统状态切换和台灯挡位修改
+/**
+ * @brief 状态机处理函数
+ * @details 根据按键输入切换系统状态和调节亮度
+ */
 void stateMachine(void) {
-	keyNumber = keyRead();
-	switch(keyNumber) {
-		case 1:		// 系统手动/自动模式切换
-			systemState =  (systemState==MANUAL)?AUTO:MANUAL;
-			// 手动模式表示有人来
-			if(systemState==MANUAL) {
-				humanFlag = 1;
-			}
-			// 如果是自动模式，设置中等亮度
-			if(systemState == AUTO) {
-				lightState = LAMP_MEDIUM;
-				// 重置计时器并开始计时
-				timeCount = 0;
-				countFlag = 1;
-			}
-			// 更新指示灯
-            updateDisplay();
-			break;
-		case 2:    // 增加亮度挡位（循环）
-			if(systemState==MANUAL) {	// 按键2仅在手动模式下有效
-				lightState = (lightState + 1) % 5;	// 枚举变量可以使用自增/自减操作
-			}
-			break;
-		case 3:    // 降低亮度挡位（循环）
-			if(systemState==MANUAL) {	// 按键3仅在手动模式下有效
-				lightState = (lightState - 1 + 5) % 5;
-			}
-			break;
-		case 4:		// 用按键4模拟人来
-			// 只在自动模式下有用
-			if(systemState == AUTO) {
-				humanFlag = 1;	// 模拟人来了，标志位置1			
-				// 人来了之后就重置并开始计时
-				timeCount = 0;
-				countFlag = 1;
-			}			
-			break;
-	}
+    keyNumber = keyRead();
+    
+    switch(keyNumber) {
+        case 1:  // 手动/自动模式切换
+            systemData.systemState = (systemData.systemState == MANUAL) ? AUTO : MANUAL;
+            
+            if(systemData.systemState == MANUAL) {
+                systemFlag.humanFlag = 1;  // 手动模式默认有人
+            }
+            
+            if(systemData.systemState == AUTO) {
+                systemData.lightState = LAMP_MEDIUM;  // 自动模式重置亮度
+                systemData.timeCount = 0;             // 重置计时器
+                systemFlag.countFlag = 1;             // 开始计时
+            }
+            
+            updateDisplay();  // 更新指示灯
+            break;
+            
+        case 2:  // 增加亮度挡位
+            if(systemData.systemState == MANUAL) {
+                systemData.lightState = (systemData.lightState + 1) % 5;
+            }
+            break;
+            
+        case 3:  // 降低亮度挡位
+            if(systemData.systemState == MANUAL) {
+                systemData.lightState = (systemData.lightState - 1 + 5) % 5;
+            }
+            break;
+            
+        case 4:  // 模拟人体检测(自动模式下)
+            if(systemData.systemState == AUTO) {
+                systemFlag.humanFlag = 1;      // 标记有人
+                systemData.timeCount = 0;      // 重置计时
+                systemFlag.countFlag = 1;      // 开始计时
+            }
+            break;
+    }
 }
 
-// 台灯自动控制
-// 根据光线自动调节照明灯亮度
+/**
+ * @brief 台灯自动控制函数
+ * @details 根据环境光线强度自动调节台灯亮度
+ * @note 仅在自动模式且检测到有人时生效
+ */
 void lampAutoControl(void) {
-	// 系统模式处于非自动模式并且没检测到人
-	if(systemState!=AUTO || humanFlag==0) {
-		return;	// 如果不处于自动模式就结束函数
-	}
-	lightIntensity = xpt2046_read_adc_value(0xA4);	// 存储光敏电阻的值
-	
-	// 光敏电阻的范围是0-4095，将其分为五个档次，分别对应照明灯状态
-	// 即：光线越弱，照明越强
-	if(lightIntensity>0 && lightIntensity<LIGHT_LOWEST) {
-		lightState = LAMP_HIGHTEST;
-	} else if(lightIntensity>LIGHT_LOWEST && lightIntensity<LIGHT_LOW) {
-		lightState = LAMP_HIGHT;
-	} else if(lightIntensity>LIGHT_LOW && lightIntensity<LIGHT_MEDIUM) {
-		lightState = LAMP_MEDIUM;
-	} else if(lightIntensity>LIGHT_MEDIUM && lightIntensity<LIGHT_HIGH) {
-		lightState = LAMP_LOW;
-	} else if(lightIntensity>LIGHT_HIGH && lightIntensity<LIGHT_MAX) {
-		lightState = LAMP_CLOSE;
-	}
-	
+    // 检查模式条件
+    if(systemData.systemState != AUTO || systemFlag.humanFlag == 0) {
+        return;
+    }
+    
+    // 读取光线传感器数据
+    systemData.lightIntensity = xpt2046_read_adc_value(0xA4);
+    
+    // 根据光线强度设置亮度等级(光线越弱，亮度越高)
+    if(systemData.lightIntensity > 0 && systemData.lightIntensity < LIGHT_LOWEST) {
+        systemData.lightState = LAMP_HIGHEST;
+    } else if(systemData.lightIntensity > LIGHT_LOWEST && systemData.lightIntensity < LIGHT_LOW) {
+        systemData.lightState = LAMP_HIGH;
+    } else if(systemData.lightIntensity > LIGHT_LOW && systemData.lightIntensity < LIGHT_MEDIUM) {
+        systemData.lightState = LAMP_MEDIUM;
+    } else if(systemData.lightIntensity > LIGHT_MEDIUM && systemData.lightIntensity < LIGHT_HIGH) {
+        systemData.lightState = LAMP_LOW;
+    } else if(systemData.lightIntensity > LIGHT_HIGH && systemData.lightIntensity < LIGHT_MAX) {
+        systemData.lightState = LAMP_CLOSE;
+    }
 }
 
-// 指示灯更新函数
+/**
+ * @brief 指示灯更新函数
+ * @details 更新模式指示灯状态和数码管显示数据
+ */
 void updateDisplay(void) {
-	nixieBuf[0] = lightIntensity/1000;	// 4095/1000=4
-	nixieBuf[1] = lightIntensity%1000/100;	// 4095%1000=095,095/100=0
-	nixieBuf[2] = lightIntensity%1000%100/10;
-	nixieBuf[3] = lightIntensity%1000%100%10;
-	
-    LED1 = !(systemState == AUTO);   // 自动模式指示灯
-    LED2 = !(systemState == MANUAL); // 手动模式指示灯
+    // 更新数码管显示缓冲区
+    systemData.nixieBuf[0] = systemData.lightIntensity / 1000;
+    systemData.nixieBuf[1] = systemData.lightIntensity % 1000 / 100;
+    systemData.nixieBuf[2] = systemData.lightIntensity % 1000 % 100 / 10;
+    systemData.nixieBuf[3] = systemData.lightIntensity % 1000 % 100 % 10;
+    
+    // 更新模式指示灯
+    LED1 = !(systemData.systemState == AUTO);    // 自动模式指示灯
+    LED2 = !(systemData.systemState == MANUAL);  // 手动模式指示灯
 }
 
-// 数据显示函数：扫描刷新4位数码管（动态显示）
+/**
+ * @brief 数码管数据显示函数
+ * @details 扫描刷新4位数码管显示光线强度值
+ */
 void dataDisplay(void) {
-	nixieScan(5, nixieBuf[0], 0);
-	nixieScan(6, nixieBuf[1], 0);
-	nixieScan(7, nixieBuf[2], 0);
-	nixieScan(8, nixieBuf[3], 0);
+    nixieScan(5, systemData.nixieBuf[0], 0);
+    nixieScan(6, systemData.nixieBuf[1], 0);
+    nixieScan(7, systemData.nixieBuf[2], 0);
+    nixieScan(8, systemData.nixieBuf[3], 0);
 }
 
-/* Main */
-void main() {	
-	systemInit();	// 系统初始化
-	
-	while(1) {
-		stateMachine();	// 处理按键输入
-		lampAutoControl();	// 台灯自动控制
-		updateDisplay();	// 更新数据
-		dataDisplay();	// 显示数据
-		
-	}
+/**
+ * @brief 主函数
+ * @details 系统主循环，协调各功能模块运行
+ */
+void main() {
+    systemInit();  // 系统初始化
+    
+    while(1) {
+        stateMachine();     // 处理按键输入
+        lampAutoControl();  // 自动亮度控制
+        updateDisplay();    // 更新显示数据
+        dataDisplay();      // 刷新数码管显示
+    }
 }
 
-// 定时器0中断服务函数，每100us中断一次
+/**
+ * @brief 定时器0中断服务函数
+ * @details 每100us中断一次，处理PWM输出和人走计时
+ * @note 中断号1对应定时器0
+ */
 void timer0_ISR(void) interrupt 1 {
-    // 重装载初值，保证每次定时一致
+    // 重装定时器初值(100us)
     TH0 = (65536 - 92) / 256;
     TL0 = (65536 - 92) % 256;
     
-	if(countFlag) {	// 计时标志位=1，则开始计时
-		count++;
-		if(count == 10000) {	// 1ms * 1 000 = 1s
-			count = 0;
-			timeCount++;
-			// 如果等于预设时间就停止计时，并设置人离开
-			// 实际测量时间时7s多暂时不清楚原因，我先完成功能，后面再来优化
-			if(timeCount == LAMP_CLOSE_TIME) {
-				countFlag = 0;
-				humanFlag = 0;	// 置0表示人走了
-			}
-		}
-	}	
-	
-	pwmCount++;
-    pwmCount %= 100;
-	// 简化的PWM输出逻辑
-    if(humanFlag == 1) {
-        // 有人，正常PWM调光
-        if(pwmCount < lightGrade[lightState]) {
-            LED_MAIN = 0;    // 照明灯引脚给 0 亮
+    // 人走计时处理
+    if(systemFlag.countFlag) {
+        systemFlag.count++;
+        if(systemFlag.count == 10000) {  // 100us × 10000 = 1秒
+            systemFlag.count = 0;        // 重置计数器
+            systemData.timeCount++;      // 秒计数器递增
+            
+            // 检查是否达到关闭时间
+            if(systemData.timeCount == LAMP_CLOSE_TIME) {
+                systemFlag.countFlag = 0;   // 停止计时
+                systemFlag.humanFlag = 0;   // 标记无人
+            }
+        }
+    }
+    
+    // PWM输出处理
+    systemData.pwmCount++;
+    systemData.pwmCount %= 100;  // 保持0-99范围
+    
+    if(systemFlag.humanFlag == 1) {
+        // 有人状态：根据亮度等级输出PWM
+        if(systemData.pwmCount < systemData.lightGrade[systemData.lightState]) {
+            LED_MAIN = 0;  // 点亮主灯
         } else {
-            LED_MAIN = 1;    // 照明灯引脚给 1 灭
+            LED_MAIN = 1;  // 熄灭主灯
         }
     } else {
-        // 没人，灯熄灭
-        LED_MAIN = 1;    // 照明灯引脚给 1 灭
+        // 无人状态：关闭主灯
+        LED_MAIN = 1;
     }
 }

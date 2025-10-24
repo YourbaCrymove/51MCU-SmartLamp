@@ -1,8 +1,16 @@
-#ifndef KEYINPUT_H
-#define KEYINPUT_H
+/**
+ * @file    key.h
+ * @brief   按键驱动头文件
+ * @details 实现基于状态机的按键消抖处理
+ * @author  智能台灯项目组
+ * @version 1.0
+ * @date    2025-10-24
+ */
+#ifndef KEY_H
+#define KEY_H
 
-// 按键状态枚举
-// 按下按键的完整流程：IDLE → DEBOUNCE_PRESS → PRESSED → DEBOUNCE_RELEASE → IDLE
+// * @brief 按键状态枚举
+ //* @details 描述按键状态机的完整流程
 typedef enum {
     KEY_STATE_IDLE = 0,          // 空闲状态：按键未被按下，等待按键动作
     KEY_STATE_DEBOUNCE_PRESS,    // 按下消抖状态：检测到按键按下，正在进行消抖处理

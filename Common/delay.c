@@ -1,3 +1,11 @@
+/**
+ * @file    delay.c
+ * @brief   精确延时函数实现文件
+ * @details 基于11.0592MHz晶振的微秒、毫秒、秒级延时
+ * @author  智能台灯项目组
+ * @version 1.0
+ * @date    2025-10-24
+ */
 #include "delay.h"
 #include <regx52.h>
 #include <intrins.h>

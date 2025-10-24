@@ -1,4 +1,12 @@
-#include "nixieSTC89C52RC.h"
+/**
+ * @file    nixie.c
+ * @brief   数码管显示驱动实现文件
+ * @details 实现8位共阳极数码管的动态扫描显示，支持小数点控制
+ * @author  智能台灯项目组
+ * @version 1.0
+ * @date    2025-10-24
+ */
+#include "nixie.h"
 #include <regx52.h>
 #include "delay.h"
 
@@ -28,6 +36,7 @@ void nixieScan(unsigned char location, unsigned char number, unsigned char point
 	
     // 校验位置范围
     if(location < 1 || location > 8) return;
+    if(number > 10) return;  // 0-9 + 熄灭状态
     
     // 根据位置设置位选信号（通过74HC138译码器）
     pos = location - 1;  // 转换为数组索引
